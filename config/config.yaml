@@ -1,0 +1,30 @@
+prject:
+  environment: "local" #local or docker
+
+kafka:
+  local:
+    zookeeper-1:
+      address: "127.0.0.1"
+      port: 2181
+    broker-1:
+      address: "127.0.0.1"
+      port: 29092
+    broker-2:
+      address: "127.0.0.1"
+      port: 39092
+  docker:
+    zookeeper-1:
+      address: "zookeeper"
+      port: 2181
+    broker-1:
+      address: "kafka-1"
+      port: 9092
+    broker-2:
+      address: "kafka-2"
+      port: 9092
+  topics:
+    head-api_sink: "Starter"
+
+mongodb:
+  environment: "local" #local or atlas
+
