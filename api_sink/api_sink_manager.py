@@ -1,6 +1,5 @@
 #LIBRARIES---------------------------
 from kafka import KafkaConsumer, KafkaProducer
-import json
 import yaml
 import pymongo
 from datetime import datetime
@@ -65,7 +64,7 @@ if __name__ == "__main__":
     current_time = datetime.now()
     producer.send(TOPIC_PRODUCER, value={
       "date": f'{current_time.year}.{current_time.month}.{current_time.day}:{current_time.hour}.{current_time.minute}.{current_time.second}',
-      "status": "GRATE"
+      "status": "GREAT"
     })
     producer.flush()
     print(f"\t...message sent to: {BROKER_ADD}:{BROKER_PORT}-{TOPIC_PRODUCER}")
