@@ -1,4 +1,4 @@
-prject:
+project:
   environment: "local" #local or docker
 
 kafka:

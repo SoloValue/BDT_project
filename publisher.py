@@ -1,12 +1,19 @@
 from kafka import KafkaProducer
-import json
 import numpy as np
+import yaml
+from api_sink.serializers import serializer
 
-def json_serializer(data):
-    return json.dumps(data).encode("utf-8")
+CONFIG_PATH = "./config/config.yaml"
+with open(CONFIG_PATH, "r") as f:
+    config = yaml.safe_load(f)
+    print(f"\tConfiguration file loaded from: {CONFIG_PATH}")
 
-producer = KafkaProducer(bootstrap_servers = ["localhost:29092"],
-                         value_serializer = json_serializer)
+PROJECT_ENV = config["project"]["environment"]
+BROKER_ADD = config["kafka"][PROJECT_ENV]["broker-1"]["address"]
+BROKER_PORT = config["kafka"][PROJECT_ENV]["broker-1"]["port"]
+TOPIC_NAME = config["kafka"]["topics"]["head-api_sink"]
+producer = KafkaProducer(bootstrap_servers = [f'{BROKER_ADD}:{BROKER_PORT}'],
+                         value_serializer = serializer)
     
 if __name__ == "__main__":
     json_to_send = {
@@ -16,5 +23,5 @@ if __name__ == "__main__":
         "how much in a scale to 1 to 10": np.random.randint(1,12)
     }
     #print(json_to_send)
-    producer.send("dump_try", value=json_to_send)
+    producer.send(TOPIC_NAME, value=json_to_send)
     producer.flush()

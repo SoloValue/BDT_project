@@ -18,16 +18,17 @@ if __name__ == "__main__":
   ## start listening
   BROKER_ADD = config["kafka"][PROJECT_ENV]["broker-1"]["address"]
   BROKER_PORT = config["kafka"][PROJECT_ENV]["broker-1"]["port"]
-  TOPIC_NAME = config["kafka"]["head-api_sink"]
+  TOPIC_NAME = config["kafka"]["topics"]["head-api_sink"]
 
   consumer = KafkaConsumer(
-    bootstrap_servers=f'{BROKER_ADD}:{BROKER_PORT}',
+    bootstrap_servers=[f'{BROKER_ADD}:{BROKER_PORT}'],
     value_deserializer = deserializer,
     auto_offset_reset='latest'
   )
+  print(f"\tConnected to {BROKER_ADD}:{BROKER_PORT}")
 
-  consumer.subscribe(topics='dump_try')
-  print("Connected to broker")
+  consumer.subscribe(topics=TOPIC_NAME)
+  print(f'\tListening to topic: {TOPIC_NAME}...')
   for message in consumer:
     print ("%d:%d: msg=%s" % (
       message.partition,
