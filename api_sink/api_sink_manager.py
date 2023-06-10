@@ -1,7 +1,9 @@
 #LIBRARIES---------------------------
-from kafka import KafkaConsumer
+from kafka import KafkaConsumer, KafkaProducer
 import json
 import yaml
+import pymongo
+from datetime import datetime
 
 #CLASSESS----------------------------
 from serializers import serializer, deserializer
@@ -15,10 +17,11 @@ if __name__ == "__main__":
     print(f"\tConfiguration file loaded from: {CONFIG_PATH}")
     PROJECT_ENV = config["project"]["environment"]
 
-  ## start listening
+  ## start listening (consumer)
   BROKER_ADD = config["kafka"][PROJECT_ENV]["broker-1"]["address"]
   BROKER_PORT = config["kafka"][PROJECT_ENV]["broker-1"]["port"]
-  TOPIC_NAME = config["kafka"]["topics"]["head-api_sink"]
+  TOPIC_CONSUMER = config["kafka"]["topics"]["head-api_sink"]
+  TOPIC_PRODUCER = config["kafka"]["topics"]["api_sink-head"]
 
   consumer = KafkaConsumer(
     bootstrap_servers=[f'{BROKER_ADD}:{BROKER_PORT}'],
@@ -27,10 +30,43 @@ if __name__ == "__main__":
   )
   print(f"\tConnected to {BROKER_ADD}:{BROKER_PORT}")
 
-  consumer.subscribe(topics=TOPIC_NAME)
-  print(f'\tListening to topic: {TOPIC_NAME}...')
+  consumer.subscribe(topics=TOPIC_CONSUMER)
+  print(f'\tListening to topic: {TOPIC_CONSUMER}...')
   for message in consumer:
     print ("%d:%d: msg=%s" % (
       message.partition,
       message.offset,
       message.value))
+    
+    ##retrive data from API TODO
+    to_send = {
+        "name": "Teo",
+        "hope": "not really",
+        "will it work": "plz I need it",
+        "how much in a scale to 1 to 10": 9
+    }
+    print("\tData from API recived")
+
+    ##save it on mongodb TODO
+    CONNECTION_STRING = config["mongodb"]["atlas"]["connection_string"]
+    myclient = pymongo.MongoClient(CONNECTION_STRING)
+    mydb = myclient["mydatabase"]
+    mycol = mydb["customers"]
+    x = mycol.insert_one(to_send)
+    print(x.inserted_id)
+    print("\tData saved in mongodb")
+
+    ##start next section (producer)
+    print("\tStarting next section...")
+    producer = KafkaProducer(
+        bootstrap_servers = [f'{BROKER_ADD}:{BROKER_PORT}'],
+        value_serializer = serializer)
+    
+    current_time = datetime.now()
+    producer.send(TOPIC_PRODUCER, value={
+      "date": f'{current_time.year}.{current_time.month}.{current_time.day}:{current_time.hour}.{current_time.minute}.{current_time.second}',
+      "status": "GRATE"
+    })
+    producer.flush()
+    print(f"\t...message sent to: {BROKER_ADD}:{BROKER_PORT}-{TOPIC_PRODUCER}")
+

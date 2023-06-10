@@ -1,6 +1,17 @@
 project:
   environment: "local" #local or docker
 
+mongodb:
+  environment: "atlas"
+  local:
+    address: "127.0.0.1"
+    port: 27017
+  docker:
+    address: "mongo1"
+    port: 27017
+  atlas:
+    connection_string: "mongodb+srv://admin:psw@cluster0.ew7zhpy.mongodb.net/"
+
 kafka:
   local:
     zookeeper-1:
@@ -23,8 +34,5 @@ kafka:
       address: "kafka-2"
       port: 9092
   topics:
-    head-api_sink: "Starter"
-
-mongodb:
-  environment: "local" #local or atlas
-
+    head-api_sink: "starter"
+    api_sink-head: "data_status"
