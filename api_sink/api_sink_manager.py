@@ -1,11 +1,14 @@
 #LIBRARIES---------------------------
-from kafka import KafkaConsumer, KafkaProducer
+from kafka import KafkaConsumer, KafkaProducer, errors
 import yaml
 import pymongo
 from datetime import datetime
+import time
 
 #CLASSESS----------------------------
 from serializers import serializer, deserializer
+#import sys CHANGE ROOT PATH
+#look for setup.py
 
 #MAIN--------------------------------
 if __name__ == "__main__":
@@ -22,11 +25,18 @@ if __name__ == "__main__":
   TOPIC_CONSUMER = config["kafka"]["topics"]["head-api_sink"]
   TOPIC_PRODUCER = config["kafka"]["topics"]["api_sink-head"]
 
-  consumer = KafkaConsumer(
-    bootstrap_servers=[f'{BROKER_ADD}:{BROKER_PORT}'],
-    value_deserializer = deserializer,
-    auto_offset_reset='latest'
-  )
+  connected = False
+  while not connected:
+    try:
+      consumer = KafkaConsumer(
+          bootstrap_servers=[f'{BROKER_ADD}:{BROKER_PORT}'],
+          value_deserializer = deserializer,
+          auto_offset_reset='latest')
+      connected = True
+    except errors.NoBrokersAvailable:
+      print("\tNO BROKER AVAILABLE!")
+      print("\tRetring in 5 seconds...")
+      time.sleep(5)
   print(f"\tConnected to {BROKER_ADD}:{BROKER_PORT}")
 
   consumer.subscribe(topics=TOPIC_CONSUMER)

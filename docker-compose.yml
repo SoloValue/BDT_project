@@ -23,16 +23,6 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_DOCKER_INTERNAL
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-#      command: |
-#        "
-#        # blocks until kafka is reachable
-#        kafka-topics --bootstrap-server kafka-1:9092 --list
-#
-#        echo -e 'Creating kafka topics'
-#        kafka-topics --bootstrap-server kafka-1:9092 --create --if-not-exists --topic Starter --replication-factor 1 --partitions 1
-#        echo -e 'Successfully created the following topics:'
-#        kafka-topics --bootstrap-server kafka-1:9092 --list
-#        "
 
   kafka-2:
     image: confluentinc/cp-kafka:latest
@@ -48,3 +38,21 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_DOCKER_INTERNAL
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+  
+  api_sink:
+    build: 
+      context: ./
+      dockerfile: ./api_sink/Dockerfile
+    container_name: api_sink
+    depends_on:
+      - kafka-1
+      - kafka-2
+
+  head:
+    build: 
+      context: ./
+      dockerfile: ./head/Dockerfile
+    container_name: head
+    depends_on:
+      - kafka-1
+      - kafka-2

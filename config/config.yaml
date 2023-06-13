@@ -1,8 +1,8 @@
 project:
-  environment: "local" #local or docker
+  environment: "docker" #local or docker
 
 mongodb:
-  environment: "atlas"
+  environment: "atlas" #where is the mongodb server
   local:
     address: "127.0.0.1"
     port: 27017
@@ -36,3 +36,4 @@ kafka:
   topics:
     head-api_sink: "starter"
     api_sink-head: "data_status"
+    

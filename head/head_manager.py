@@ -1,7 +1,8 @@
 #LIBRARIES---------------------------
-from kafka import KafkaConsumer, KafkaProducer
+from kafka import KafkaConsumer, KafkaProducer, errors
 import yaml
 from datetime import datetime
+import time
 
 #CLASSESS----------------------------
 from serializers import serializer, deserializer
@@ -21,10 +22,21 @@ if __name__ == "__main__":
   TOPIC_PRODUCER = config["kafka"]["topics"]["head-api_sink"]
   TOPIC_CONSUMER = config["kafka"]["topics"]["api_sink-head"]
 
-  producer = KafkaProducer(
-    bootstrap_servers = [f'{BROKER_ADD}:{BROKER_PORT}'],
-    value_serializer = serializer
-    )
+  connected = False
+  while not connected:
+    try:
+      producer = KafkaProducer(
+          bootstrap_servers = [f'{BROKER_ADD}:{BROKER_PORT}'],
+          value_serializer = serializer)
+      connected = True
+    except errors.NoBrokersAvailable:
+      print("\tNO BROKER AVAILABLE!")
+      print("\tRetring in 5 seconds...")
+      time.sleep(5)
+  print(f"\tConnected to {BROKER_ADD}:{BROKER_PORT}")
+
+  time.sleep(5)
+  print("\tSending start message...")
   current_time = datetime.now()
   producer.send(TOPIC_PRODUCER, value={
       "date": f'{current_time.year}.{current_time.month}.{current_time.day}:{current_time.hour}.{current_time.minute}.{current_time.second}',
