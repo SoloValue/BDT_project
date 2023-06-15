@@ -35,5 +35,5 @@ kafka:
       port: 9092
   topics:
     head-api_sink: "starter"
-    api_sink-head: "data_status"
+    api_sink-tail: "data_status"
     

@@ -1,14 +1,12 @@
 #LIBRARIES---------------------------
 from kafka import KafkaConsumer, KafkaProducer, errors
+import pyspark
 import yaml
-import pymongo
 from datetime import datetime
 import time
 
 #CLASSESS----------------------------
 from serializers import serializer, deserializer
-#import sys CHANGE ROOT PATH
-#look for setup.py
 
 #MAIN--------------------------------
 if __name__ == "__main__":
@@ -19,11 +17,10 @@ if __name__ == "__main__":
     print(f"\tConfiguration file loaded from: {CONFIG_PATH}")
     PROJECT_ENV = config["project"]["environment"]
 
-  ## start listening (consumer)
+  ## wait for message (consumer)
   BROKER_ADD = config["kafka"][PROJECT_ENV]["broker-1"]["address"]
   BROKER_PORT = config["kafka"][PROJECT_ENV]["broker-1"]["port"]
-  TOPIC_CONSUMER = config["kafka"]["topics"]["head-api_sink"]
-  TOPIC_PRODUCER = config["kafka"]["topics"]["api_sink-tail"]
+  TOPIC_CONSUMER = config["kafka"]["topics"]["api_sink-tail"]
 
   connected = False
   while not connected:
@@ -47,35 +44,17 @@ if __name__ == "__main__":
       message.offset,
       message.value))
     
-    ##retrive data from API TODO
-    to_send = {
-        "name": "Teo",
-        "hope": "not really",
-        "will it work": "plz I need it",
-        "how much in a scale to 1 to 10": 9
-    }
-    print("\tData from API recived")
+    if message.value["status"] != "GREAT":
+      print(f"API sink gone wrong. Status: {message.value['status']}")
+      pass
 
-    ##save it on mongodb TODO
-    CONNECTION_STRING = config["mongodb"]["atlas"]["connection_string"]
-    myclient = pymongo.MongoClient(CONNECTION_STRING)
-    mydb = myclient["mydatabase"]
-    mycol = mydb["customers"]
-    x = mycol.insert_one(to_send)
-    print(x.inserted_id)
-    print("\tData saved in mongodb")
+    print("\tAPI sink compleated. Starting spark...")
 
-    ##start next section (producer)
-    print("\tStarting next section...")
-    producer = KafkaProducer(
-        bootstrap_servers = [f'{BROKER_ADD}:{BROKER_PORT}'],
-        value_serializer = serializer)
+    ##do spark stuff
+
+    ##read mongodb using spark
+
+    ##ML project 2
+
     
-    current_time = datetime.now()
-    producer.send(TOPIC_PRODUCER, value={
-      "date": f'{current_time.year}.{current_time.month}.{current_time.day}:{current_time.hour}.{current_time.minute}.{current_time.second}',
-      "status": "GREAT"
-    })
-    producer.flush()
-    print(f"\t...message sent to: {BROKER_ADD}:{BROKER_PORT}-{TOPIC_PRODUCER}")
 

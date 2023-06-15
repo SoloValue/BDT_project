@@ -20,7 +20,7 @@ if __name__ == "__main__":
   BROKER_ADD = config["kafka"][PROJECT_ENV]["broker-1"]["address"]
   BROKER_PORT = config["kafka"][PROJECT_ENV]["broker-1"]["port"]
   TOPIC_PRODUCER = config["kafka"]["topics"]["head-api_sink"]
-  TOPIC_CONSUMER = config["kafka"]["topics"]["api_sink-head"]
+  TOPIC_CONSUMER = config["kafka"]["topics"]["api_sink-tail"]
 
   connected = False
   while not connected:
@@ -35,7 +35,7 @@ if __name__ == "__main__":
       time.sleep(5)
   print(f"\tConnected to {BROKER_ADD}:{BROKER_PORT}")
 
-  time.sleep(5)
+  time.sleep(10)
   print("\tSending start message...")
   current_time = datetime.now()
   producer.send(TOPIC_PRODUCER, value={
