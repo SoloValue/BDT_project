@@ -1,7 +1,6 @@
 FROM python:3-slim-buster
 COPY ./head/ ./app/head 
 COPY ./config/ ./app/config
-COPY ./serializers.py ./app/
 WORKDIR /app
 
 RUN pip3 install kafka-python \
