@@ -18,15 +18,17 @@ if __name__ == "__main__":
     PROJECT_ENV = config["project"]["environment"]
 
   ## wait for message (consumer)
-  BROKER_ADD = config["kafka"][PROJECT_ENV]["broker-1"]["address"]
-  BROKER_PORT = config["kafka"][PROJECT_ENV]["broker-1"]["port"]
+  BROKER_ADD_LIST = [config["kafka"][PROJECT_ENV][f"broker-{i+1}"]["address"] for i in range(3)]
+  BROKER_PORT_LIST = [config["kafka"][PROJECT_ENV][f"broker-{i+1}"]["port"] for i in range(3)]
   TOPIC_CONSUMER = config["kafka"]["topics"]["api_sink-tail"]
 
   connected = False
   while not connected:
     try:
       consumer = KafkaConsumer(
-          bootstrap_servers=[f'{BROKER_ADD}:{BROKER_PORT}'],
+          bootstrap_servers=[f'{BROKER_ADD_LIST[0]}:{BROKER_PORT_LIST[0]}',
+                             f'{BROKER_ADD_LIST[1]}:{BROKER_PORT_LIST[1]}',
+                             f'{BROKER_ADD_LIST[2]}:{BROKER_PORT_LIST[2]}'],
           value_deserializer = deserializer,
           auto_offset_reset='latest')
       connected = True
@@ -34,7 +36,7 @@ if __name__ == "__main__":
       print("\tNO BROKER AVAILABLE!")
       print("\tRetring in 5 seconds...")
       time.sleep(5)
-  print(f"\tConnected to {BROKER_ADD}:{BROKER_PORT}")
+  print(f"\tConnected to {BROKER_ADD_LIST[0]}:{BROKER_PORT_LIST[0]}")
 
   consumer.subscribe(topics=TOPIC_CONSUMER)
   print(f'\tListening to topic: {TOPIC_CONSUMER}...')
@@ -53,8 +55,11 @@ if __name__ == "__main__":
     ##do spark stuff
 
     ##read mongodb using spark
+    CONNECTION_STRING = config["mongodb"]["atlas"]["connection_string"]
+    print(f"\tData recovered from: {CONNECTION_STRING}")
 
     ##ML project 2
+    print("\tPrevisions computed.")
 
-    
-
+    ##Send output
+    print("\tOutput sent.")

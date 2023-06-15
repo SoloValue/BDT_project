@@ -20,8 +20,8 @@ if __name__ == "__main__":
     PROJECT_ENV = config["project"]["environment"]
 
   ## start listening (consumer)
-  BROKER_ADD = config["kafka"][PROJECT_ENV]["broker-1"]["address"]
-  BROKER_PORT = config["kafka"][PROJECT_ENV]["broker-1"]["port"]
+  BROKER_ADD_LIST = [config["kafka"][PROJECT_ENV][f"broker-{i+1}"]["address"] for i in range(3)]
+  BROKER_PORT_LIST = [config["kafka"][PROJECT_ENV][f"broker-{i+1}"]["port"] for i in range(3)]
   TOPIC_CONSUMER = config["kafka"]["topics"]["head-api_sink"]
   TOPIC_PRODUCER = config["kafka"]["topics"]["api_sink-tail"]
 
@@ -29,15 +29,17 @@ if __name__ == "__main__":
   while not connected:
     try:
       consumer = KafkaConsumer(
-          bootstrap_servers=[f'{BROKER_ADD}:{BROKER_PORT}'],
+          bootstrap_servers=[f'{BROKER_ADD_LIST[0]}:{BROKER_PORT_LIST[0]}',
+                             f'{BROKER_ADD_LIST[1]}:{BROKER_PORT_LIST[1]}',
+                             f'{BROKER_ADD_LIST[2]}:{BROKER_PORT_LIST[2]}'],
           value_deserializer = deserializer,
           auto_offset_reset='latest')
       connected = True
     except errors.NoBrokersAvailable:
-      print("\tNO BROKER AVAILABLE!")
+      print("\tNO BROKERS AVAILABLE!")
       print("\tRetring in 5 seconds...")
       time.sleep(5)
-  print(f"\tConnected to {BROKER_ADD}:{BROKER_PORT}")
+  print(f"\tConnected to {BROKER_ADD_LIST[0]}:{BROKER_PORT_LIST[0]}")
 
   consumer.subscribe(topics=TOPIC_CONSUMER)
   print(f'\tListening to topic: {TOPIC_CONSUMER}...')
@@ -68,7 +70,7 @@ if __name__ == "__main__":
     ##start next section (producer)
     print("\tStarting next section...")
     producer = KafkaProducer(
-        bootstrap_servers = [f'{BROKER_ADD}:{BROKER_PORT}'],
+        bootstrap_servers = [f'{BROKER_ADD_LIST[0]}:{BROKER_PORT_LIST[0]}'],
         value_serializer = serializer)
     
     current_time = datetime.now()
@@ -77,5 +79,5 @@ if __name__ == "__main__":
       "status": "GREAT"
     })
     producer.flush()
-    print(f"\t...message sent to: {BROKER_ADD}:{BROKER_PORT}-{TOPIC_PRODUCER}")
+    print(f"\t...message sent to: {BROKER_ADD_LIST[0]}:{BROKER_PORT_LIST[0]}-{TOPIC_PRODUCER}")
 
