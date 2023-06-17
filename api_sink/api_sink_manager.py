@@ -7,8 +7,7 @@ import time
 
 #CLASSESS----------------------------
 from serializers import serializer, deserializer
-#import sys CHANGE ROOT PATH
-#look for setup.py
+from api_requests import get_all_requests, insert_docs
 
 #MAIN--------------------------------
 if __name__ == "__main__":
@@ -50,12 +49,11 @@ if __name__ == "__main__":
       message.value))
     
     ##retrive data from API TODO
-    to_send = {
-        "name": "Teo",
-        "hope": "not really",
-        "will it work": "plz I need it",
-        "how much in a scale to 1 to 10": 9
-    }
+    in_lat = 46.0546089
+    in_long = 11.1138261
+    trento_id = 7428
+
+    traffic_data, air_data, weather_data = get_all_requests(in_lat, in_long, trento_id, 4)
     print("\tData from API recived")
 
     ##save it on mongodb
@@ -73,9 +71,7 @@ if __name__ == "__main__":
                                     password = "psw")
 
     mydb = myclient["mydatabase"]
-    mycol = mydb["customers"]
-    x = mycol.insert_one(to_send)
-    print(x.inserted_id)
+    traffic_id, air_id, weather_id = insert_docs(traffic_data, air_data, weather_data, mydb)
     print("\tData saved in mongodb")
 
     ##start next section (producer)
@@ -88,7 +84,10 @@ if __name__ == "__main__":
     current_time = datetime.now()
     producer.send(TOPIC_PRODUCER, value={
       "date": f'{current_time.year}.{current_time.month}.{current_time.day}:{current_time.hour}.{current_time.minute}.{current_time.second}',
-      "status": "GREAT"
+      "status": "GREAT",
+      "traffic_id": str(traffic_id),
+      "air_id": str(air_id),
+      "weather_id": str(weather_id)
     })
     producer.flush()
     print(f"\t...message sent to: {BROKER_ADD_LIST[0]}:{BROKER_PORT_LIST[0]}-{TOPIC_PRODUCER}")

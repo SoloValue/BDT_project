@@ -3,6 +3,7 @@ services:
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
     container_name: zookeeper
+    restart: always
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
@@ -12,6 +13,7 @@ services:
   kafka-1:
     image: confluentinc/cp-kafka:latest
     container_name: kafka-1
+    restart: always
     depends_on:
       - zookeeper
     ports:
@@ -26,6 +28,7 @@ services:
   kafka-2:
     image: confluentinc/cp-kafka:latest
     container_name: kafka-2
+    restart: always
     depends_on:
       - zookeeper
     ports:
@@ -40,6 +43,7 @@ services:
   kafka-3:
     image: confluentinc/cp-kafka:latest
     container_name: kafka-3
+    restart: always
     depends_on:
       - zookeeper
     ports:
@@ -54,6 +58,7 @@ services:
   mongo:
     image: mongo
     container_name: mongo
+    restart: always
     ports:
       - 27017:27017
     environment:
@@ -63,6 +68,7 @@ services:
   mongo-express:
     image: mongo-express
     container_name: m-express
+    restart: always
     depends_on:
       - mongo
     ports:

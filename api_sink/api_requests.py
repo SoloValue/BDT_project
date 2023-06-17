@@ -1,7 +1,6 @@
 #FUNCTIONS TO GET DATA FROM APIS
 # LIBRARIES
 import requests
-import json
 import pymongo 
 import datetime
 import yaml
@@ -80,13 +79,13 @@ def get_all_requests(in_lat, in_long, id_localita, days, language='en'):
 
 
 # INSERT DATA FROM REQUESTS --------------------------------
-def insert_docs(tomtom_data, air_data, weather_data):
+def insert_docs(tomtom_data, air_data, weather_data, mongodb):
     """ inserts each doc to its collection, 
     assumes the connection to cluster and db is already active"""
 
-    traffic_id = mydb.tomtom.insert_one(tomtom_data).inserted_id
-    air_id = mydb.air.insert_one(air_data).inserted_id
-    weather_id = mydb.weather.insert_one(weather_data).inserted_id
+    traffic_id = mongodb.tomtom.insert_one(tomtom_data).inserted_id
+    air_id = mongodb.air.insert_one(air_data).inserted_id
+    weather_id = mongodb.weather.insert_one(weather_data).inserted_id
 
     print(f"You just inserted: {traffic_id} & {air_id} & {weather_id}")
 
@@ -108,6 +107,6 @@ if __name__ == "__main__":
     trento_id = 7428
 
     tomtom_data, air_data, weather_data = get_all_requests(in_lat, in_long, trento_id, 4)
-    traffic_id, air_id, weather_id = insert_docs(tomtom_data, air_data, weather_data)
+    traffic_id, air_id, weather_id = insert_docs(tomtom_data, air_data, weather_data, mydb)
     
 

@@ -5,5 +5,6 @@ WORKDIR /app
 
 RUN pip3 install kafka-python \
   && pip3 install pymongo \
-  && pip3 install pyyaml
+  && pip3 install pyyaml \
+  && pip3 install requests
 CMD python3 -u api_sink/api_sink_manager.py
