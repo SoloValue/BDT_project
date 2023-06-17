@@ -102,8 +102,8 @@ if __name__ == "__main__":
     myclient = pymongo.MongoClient(CONNECTION_STRING)
     mydb = myclient["mydatabase"]
 
-    in_lat = 46.0546089
-    in_long = 11.1138261
+    in_lat = 46.065435
+    in_long = 11.113922
     trento_id = 7428
 
     tomtom_data, air_data, weather_data = get_all_requests(in_lat, in_long, trento_id, 4)

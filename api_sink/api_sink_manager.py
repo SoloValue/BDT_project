@@ -49,8 +49,8 @@ if __name__ == "__main__":
       message.value))
     
     ##retrive data from API TODO
-    in_lat = 46.0546089
-    in_long = 11.1138261
+    in_lat = 46.065435
+    in_long = 11.113922
     trento_id = 7428
 
     traffic_data, air_data, weather_data = get_all_requests(in_lat, in_long, trento_id, 4)
