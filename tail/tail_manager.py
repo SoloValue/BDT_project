@@ -1,6 +1,7 @@
 #LIBRARIES---------------------------
 from kafka import KafkaConsumer, KafkaProducer, errors
 import pyspark
+import pymongo
 import yaml
 from datetime import datetime
 import time
@@ -52,10 +53,13 @@ if __name__ == "__main__":
 
     print("\tAPI sink compleated. Starting spark...")
 
-    ##do spark stuff
+    ##do spark stuff TODO
 
     ##read mongodb using spark
     CONNECTION_STRING = config["mongodb"]["atlas"]["connection_string"]
+
+    myclient = pymongo.MongoClient(CONNECTION_STRING)
+
     print(f"\tData recovered from: {CONNECTION_STRING}")
 
     ##ML project 2

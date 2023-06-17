@@ -58,7 +58,7 @@ if __name__ == "__main__":
     }
     print("\tData from API recived")
 
-    ##save it on mongodb TODO
+    ##save it on mongodb
     CONNECTION_STRING = config["mongodb"]["atlas"]["connection_string"]
     myclient = pymongo.MongoClient(CONNECTION_STRING)
     mydb = myclient["mydatabase"]
@@ -68,7 +68,8 @@ if __name__ == "__main__":
     print("\tData saved in mongodb")
 
     ##start next section (producer)
-    print("\tStarting next section...")
+    print("\tSending message...")
+    time.sleep(2)
     producer = KafkaProducer(
         bootstrap_servers = [f'{BROKER_ADD_LIST[0]}:{BROKER_PORT_LIST[0]}'],
         value_serializer = serializer)
