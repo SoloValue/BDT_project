@@ -6,14 +6,6 @@ import pymongo
 import datetime
 import yaml
 
-# CONNECT TO MONGO ATLAS DATABASE 
-CONFIG_PATH = "./config/config.yaml"
-with open(CONFIG_PATH, "r") as f:
-    config = yaml.safe_load(f)
-CONNECTION_STRING = config["mongodb"]["atlas"]["connection_string"]
-myclient = pymongo.MongoClient(CONNECTION_STRING)
-mydb = myclient["mydatabase"]
-
 # REAL TIME REQUESTS -------------------------------------
 def rt_tomtom_request(lat, long_):
 
@@ -54,7 +46,7 @@ def rt_weather_request(id_localita, days:int, language='en'):
     return result
 
 
-def all_requests(in_lat, in_long, id_localita, days, language='en'):
+def get_all_requests(in_lat, in_long, id_localita, days, language='en'):
     """ performs all 3 requests at once, using the functions above """
 
     tomtom_data = rt_tomtom_request(in_lat, in_long)
@@ -80,10 +72,20 @@ def insert_docs(tomtom_data, air_data, weather_data):
     return traffic_id, air_id, weather_id, time
 
 # REQUEST PARAMETERS (just for now here)------------------
-in_lat = 46.0546089
-in_long = 11.1138261
-trento_id = 7428
+if __name__ == "__main__":
 
-tomtom_data, air_data, weather_data = all_requests(in_lat, in_long, trento_id, 4)
-insert_docs(tomtom_data, air_data, weather_data)
+    # CONNECT TO MONGO ATLAS DATABASE 
+    CONFIG_PATH = "./config/config.yaml"
+    with open(CONFIG_PATH, "r") as f:
+        config = yaml.safe_load(f)
+    CONNECTION_STRING = config["mongodb"]["atlas"]["connection_string"]
+    myclient = pymongo.MongoClient(CONNECTION_STRING)
+    mydb = myclient["mydatabase"]
+
+    in_lat = 46.0546089
+    in_long = 11.1138261
+    trento_id = 7428
+
+    tomtom_data, air_data, weather_data = get_all_requests(in_lat, in_long, trento_id, 4)
+    insert_docs(tomtom_data, air_data, weather_data)
 
