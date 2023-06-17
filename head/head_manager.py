@@ -37,9 +37,7 @@ if __name__ == "__main__":
       time.sleep(5)
   print(f"\tConnected to {BROKER_ADD_LIST[0]}:{BROKER_PORT_LIST[0]}")
 
-  time.sleep(10
-  
-  )
+  time.sleep(5)
   print("\tSending start message...")
   current_time = datetime.now()
   producer.send(TOPIC_PRODUCER, value={

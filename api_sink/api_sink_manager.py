@@ -59,8 +59,19 @@ if __name__ == "__main__":
     print("\tData from API recived")
 
     ##save it on mongodb
-    CONNECTION_STRING = config["mongodb"]["atlas"]["connection_string"]
-    myclient = pymongo.MongoClient(CONNECTION_STRING)
+    MONGO_ENV = config["mongodb"]["environment"]
+    if MONGO_ENV == "atlas":
+      CONNECTION_STRING = config["mongodb"][MONGO_ENV]["connection_string"]
+      myclient = pymongo.MongoClient(CONNECTION_STRING)
+    else:
+      MONGO_ADD = CONNECTION_STRING = config["mongodb"][MONGO_ENV]["address"]
+      MONGO_PORT = CONNECTION_STRING = config["mongodb"][MONGO_ENV]["port"]
+      username = config["mongodb"]["username"]
+      username = config["mongodb"]["password"]
+      myclient = pymongo.MongoClient(f'{MONGO_ADD}:{MONGO_PORT}',
+                                    username = "root",
+                                    password = "psw")
+
     mydb = myclient["mydatabase"]
     mycol = mydb["customers"]
     x = mycol.insert_one(to_send)
