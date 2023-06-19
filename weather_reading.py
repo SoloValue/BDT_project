@@ -15,4 +15,7 @@ for el in weather_forecasts:
         day.append(dict([("data", el['data']) ,("hour", el1['ora']) , ("precipitazioni",el1['precipitazioni']),("prob_prec",el1['probabilita_prec']),("wind",el1['vento']['intensita'])]))
     days.append(day)
 
-print(days)
+with open('weather_process_data.json', 'w') as file:
+    json_data=json.dumps(days)
+    file.write(json_data)
+
