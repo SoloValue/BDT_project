@@ -3,7 +3,7 @@ from pyspark import SparkContext
 from pyspark.sql import SparkSession 
 from pyspark.sql import SQLContext
 
-connection_string="mongodb+srv://admin:psw@cluster0.ew7zhpy.mongodb.net"
+connection_string="mongodb+srv://admin:psw@cluster0.ew7zhpy.mongodb.net/"
 
 spark = SparkSession.builder.appName("MongoDBSparkConnector") \
     .config("spark.mongodb.input.uri", connection_string) \
@@ -23,4 +23,4 @@ spark.stop()
 # conf=pyspark.SparkConf().set("spark.jars.packages", "mongodb+srv://admin:psw@cluster0.ew7zhpy.mongodb.net/"
 #                              ).setMaster("").setAppName("MyApp").setAll([("spark.driver.memory", "40g"), 
 #                                                                               ("spark.executor.memory","50g")])
-# sc=SparkContext(conf=conf)
+# sc=SparkContext(conf=conf) 
