@@ -8,6 +8,7 @@ import time
 
 #CLASSESS----------------------------
 from serializers import serializer, deserializer
+from preprocess import pre_proc
 
 #MAIN--------------------------------
 if __name__ == "__main__":
@@ -53,12 +54,19 @@ if __name__ == "__main__":
 
     print("\tAPI sink compleated. Starting spark...")
 
-    ##do spark stuff TODO
-
-    ##read mongodb using spark
-    CONNECTION_STRING = config["mongodb"]["atlas"]["connection_string"]
-
-    myclient = pymongo.MongoClient(CONNECTION_STRING)
+    ## mongo connection
+    MONGO_ENV = config["mongodb"]["environment"]
+    if MONGO_ENV == "atlas":
+        CONNECTION_STRING = config["mongodb"][MONGO_ENV]["connection_string"]
+        mongo_client = pymongo.MongoClient(CONNECTION_STRING)
+    else:
+        MONGO_ADD = CONNECTION_STRING = config["mongodb"][MONGO_ENV]["address"]
+        MONGO_PORT = CONNECTION_STRING = config["mongodb"][MONGO_ENV]["port"]
+        username = config["mongodb"]["username"]
+        username = config["mongodb"]["password"]
+        mongo_client = pymongo.MongoClient(f'{MONGO_ADD}:{MONGO_PORT}',
+                                    username = "root",
+                                    password = "psw")
 
     print(f"\tData recovered from: {CONNECTION_STRING}")
 

@@ -6,7 +6,7 @@ import datetime
 import yaml
 
 # REAL TIME REQUESTS -------------------------------------
-def rt_tomtom_request(lat, long_):
+def rt_tomtom_request(lat, long_, time):
 
     """ retrieves current traffic-flow """
 
@@ -17,7 +17,6 @@ def rt_tomtom_request(lat, long_):
 
     response = requests.request("GET", url, headers=headers, data=payload)
     data_json = response.json()
-    time = datetime.datetime.now().isoformat()
 
     result = {
         'request_time': time,
@@ -27,7 +26,7 @@ def rt_tomtom_request(lat, long_):
     return result 
 
 
-def rt_air_request(lat, long_):
+def rt_air_request(lat, long_, time):
 
     """ retrieves hourly AQI for current hour & past 72hrs """
 
@@ -38,7 +37,6 @@ def rt_air_request(lat, long_):
 
     response = requests.request("GET", url, headers=headers, data=payload)
     data_json = response.json()
-    time = datetime.datetime.now().isoformat()
 
     result = {
         'request_time': time,
@@ -48,7 +46,7 @@ def rt_air_request(lat, long_):
     return result
 
 
-def rt_weather_request(id_localita, days:int, language='en'):
+def rt_weather_request(id_localita, days:int, time, language='en'):
 
     """ retrieves hourly weather forecast for next 96hrs """
 
@@ -58,7 +56,6 @@ def rt_weather_request(id_localita, days:int, language='en'):
 
     response = requests.request("GET", url, headers=headers, data=payload)
     data_json = response.json()
-    time = datetime.datetime.now().isoformat()
 
     result = {
         'request_time': time,
@@ -71,9 +68,10 @@ def rt_weather_request(id_localita, days:int, language='en'):
 def get_all_requests(in_lat, in_long, id_localita, days, language='en'):
     """ performs all 3 requests at once, using the functions above """
 
-    tomtom_data = rt_tomtom_request(in_lat, in_long)
-    air_data = rt_air_request(in_lat, in_long)
-    weather_data = rt_weather_request(id_localita, days, language)
+    request_time = datetime.datetime.now().isoformat()
+    tomtom_data = rt_tomtom_request(in_lat, in_long, request_time)
+    air_data = rt_air_request(in_lat, in_long, request_time)
+    weather_data = rt_weather_request(id_localita, days, request_time, language)
 
     return tomtom_data, air_data, weather_data
 
