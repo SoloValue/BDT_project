@@ -1,7 +1,0 @@
-version: '3'
-services:
-  aasaasdas:
-    build: 
-      context: ./
-      dockerfile: ./head/Dockerfile
-    container_name: aasaadsas

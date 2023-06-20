@@ -48,7 +48,7 @@ if __name__ == "__main__":
       message.offset,
       message.value))
     
-    ##retrive data from API TODO
+    ##retrive data from API
     in_lat = 46.065435
     in_long = 11.113922
     trento_id = 7428
