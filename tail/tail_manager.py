@@ -77,7 +77,7 @@ if __name__ == "__main__":
 
     print(f"\tData recovered from: {CONNECTION_STRING}")
 
-    ## ML project 2
+    ## ML project 2 #TODO
     predictions = []
     for i in range(96):
       predictions.append(96-i)

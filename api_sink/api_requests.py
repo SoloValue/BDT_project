@@ -73,7 +73,7 @@ def get_all_requests(in_lat, in_long, id_localita, days, language='en'):
     air_data = rt_air_request(in_lat, in_long, request_time)
     weather_data = rt_weather_request(id_localita, days, request_time, language)
 
-    return tomtom_data, air_data, weather_data
+    return tomtom_data, air_data, weather_data, request_time
 
 
 # INSERT DATA FROM REQUESTS --------------------------------
@@ -104,7 +104,7 @@ if __name__ == "__main__":
     in_long = 11.113922
     trento_id = 7428
 
-    tomtom_data, air_data, weather_data = get_all_requests(in_lat, in_long, trento_id, 4)
+    tomtom_data, air_data, weather_data, request_time = get_all_requests(in_lat, in_long, trento_id, 4)
     traffic_id, air_id, weather_id = insert_docs(tomtom_data, air_data, weather_data, mydb)
     
 
