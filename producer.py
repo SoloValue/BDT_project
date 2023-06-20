@@ -12,7 +12,7 @@ with open(CONFIG_PATH, "r") as f:
 PROJECT_ENV = config["project"]["environment"]
 BROKER_ADD = config["kafka"][PROJECT_ENV]["broker-1"]["address"]
 BROKER_PORT = config["kafka"][PROJECT_ENV]["broker-1"]["port"]
-TOPIC_NAME = config["kafka"]["topics"]["head-api_sink"]
+TOPIC_NAME = "data_status"
 
 producer = KafkaProducer(
     bootstrap_servers = [f'{BROKER_ADD}:{BROKER_PORT}'],

@@ -70,8 +70,8 @@ if __name__ == "__main__":
                                     username = "root",
                                     password = "psw")
 
-    db_api = mongo_client["mydatabase"]
-    db_pp = mongo_client["preprocess_data"]
+    db_api = mongo_client[config["mongodb"]["databases"]["api_raw"]]
+    db_pp = mongo_client[config["mongodb"]["databases"]["preprocess_data"]]
     request_time = message.value["request_time"]
     weather_data, traffic_data, air_data = pre_proc(db_api, db_pp, request_time)
 
@@ -82,6 +82,14 @@ if __name__ == "__main__":
     for i in range(96):
       predictions.append(96-i)
     print(f"Predictions: {predictions}")
+
+    ## Saving predictions
+    pred_db = mongo_client[config["mongodb"]["databases"]["output"]]
+    pred_collection = pred_db["predictions"]
+    pred_collection.insert_one({
+      "datetime": request_time,
+      "predictions": predictions
+    })
 
     ## Send output
     print("\tSending output...")

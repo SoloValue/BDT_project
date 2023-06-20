@@ -1,8 +1,8 @@
 project:
-  environment: "docker" #local or docker
+  environment: "local" #local or docker
 
 mongodb:
-  environment: "docker" #where are you connecting to the mongo
+  environment: "local" #where are you connecting to the mongo
   username: "root"
   password: "psw"
   local:
@@ -13,6 +13,10 @@ mongodb:
     port: 27017
   atlas:
     connection_string: "mongodb+srv://admin:psw@cluster0.ew7zhpy.mongodb.net/"
+  databases:
+    api_raw: "api_raw"
+    preprocess_data: "preprocess_data"
+    output: "output"
 
 kafka:
   local:
@@ -45,5 +49,5 @@ kafka:
     input-head: "input"
     head-api_sink: "starter"
     api_sink-tail: "data_status"
-    tail_output: "output"
+    tail-output: "output"
     

@@ -70,7 +70,7 @@ if __name__ == "__main__":
                                     username = "root",
                                     password = "psw")
 
-    mydb = myclient["mydatabase"]
+    mydb = myclient[config["mongodb"]["databases"]["api_raw"]]
     traffic_id, air_id, weather_id = insert_docs(traffic_data, air_data, weather_data, mydb)
     print("\tData saved in mongodb")
 
