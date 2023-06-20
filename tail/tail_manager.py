@@ -23,6 +23,7 @@ if __name__ == "__main__":
   BROKER_ADD_LIST = [config["kafka"][PROJECT_ENV][f"broker-{i+1}"]["address"] for i in range(3)]
   BROKER_PORT_LIST = [config["kafka"][PROJECT_ENV][f"broker-{i+1}"]["port"] for i in range(3)]
   TOPIC_CONSUMER = config["kafka"]["topics"]["api_sink-tail"]
+  TOPIC_PRODUCER = config["kafka"]["topics"]["tail-output"]
 
   connected = False
   while not connected:
@@ -60,18 +61,42 @@ if __name__ == "__main__":
         CONNECTION_STRING = config["mongodb"][MONGO_ENV]["connection_string"]
         mongo_client = pymongo.MongoClient(CONNECTION_STRING)
     else:
-        MONGO_ADD = CONNECTION_STRING = config["mongodb"][MONGO_ENV]["address"]
-        MONGO_PORT = CONNECTION_STRING = config["mongodb"][MONGO_ENV]["port"]
+        MONGO_ADD = config["mongodb"][MONGO_ENV]["address"]
+        MONGO_PORT = config["mongodb"][MONGO_ENV]["port"]
+        CONNECTION_STRING = f'{MONGO_ADD}:{MONGO_PORT}'
         username = config["mongodb"]["username"]
         username = config["mongodb"]["password"]
-        mongo_client = pymongo.MongoClient(f'{MONGO_ADD}:{MONGO_PORT}',
+        mongo_client = pymongo.MongoClient(CONNECTION_STRING,
                                     username = "root",
                                     password = "psw")
 
+    db_api = mongo_client["mydatabase"]
+    db_pp = mongo_client["preprocess_data"]
+    request_time = message.value["request_time"]
+    weather_data, traffic_data, air_data = pre_proc(db_api, db_pp, request_time)
+
     print(f"\tData recovered from: {CONNECTION_STRING}")
 
-    ##ML project 2
-    print("\tPrevisions computed.")
+    ## ML project 2
+    predictions = []
+    for i in range(96):
+      predictions.append(96-i)
+    print(f"Predictions: {predictions}")
 
-    ##Send output
+    ## Send output
+    print("\tSending output...")
+    producer = KafkaProducer(
+          bootstrap_servers=[f'{BROKER_ADD_LIST[0]}:{BROKER_PORT_LIST[0]}',
+                             f'{BROKER_ADD_LIST[1]}:{BROKER_PORT_LIST[1]}',
+                             f'{BROKER_ADD_LIST[2]}:{BROKER_PORT_LIST[2]}'],
+          value_serializer = serializer
+          )
+    time.sleep(2)
+    current_time = datetime.now()
+    producer.send(TOPIC_PRODUCER, value={
+        "date": f'{current_time.year}.{current_time.month}.{current_time.day}:{current_time.hour}.{current_time.minute}.{current_time.second}',
+        "status": "GREAT",
+        "predictions": predictions
+      })
+    producer.flush()
     print("\tOutput sent.")

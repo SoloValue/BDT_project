@@ -42,6 +42,8 @@ kafka:
       address: "kafka-3"
       port: 9092
   topics:
+    input-head: "input"
     head-api_sink: "starter"
     api_sink-tail: "data_status"
+    tail_output: "output"
     
