@@ -97,3 +97,13 @@ services:
       - kafka-1
       - kafka-2
       - kafka-3
+
+  tail:
+    build: 
+      context: ./
+      dockerfile: ./tail/Dockerfile
+    container_name: tail
+    depends_on:
+      - kafka-1
+      - kafka-2
+      - kafka-3
