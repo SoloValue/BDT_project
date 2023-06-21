@@ -31,7 +31,7 @@ weather_json=json.loads(weather_data)
 weather_json = weather_collection.find_one({
     '_id': ObjectId('64915ca42ea98ef3fe875701')
     })
-weather_forecasts=weather_json["request_data"]["localita"]["previsione_giorno"]
+weather_forecasts=weather_json["localita"]["previsione_giorno"]
 
 days = dict()
 for i,el in enumerate(weather_forecasts):
