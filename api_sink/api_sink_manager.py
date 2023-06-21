@@ -53,7 +53,7 @@ if __name__ == "__main__":
     in_long = 11.113922
     trento_id = 7428
 
-    traffic_data, air_data, weather_data = get_all_requests(in_lat, in_long, trento_id, 4)
+    traffic_data, air_data, weather_data, request_time = get_all_requests(in_lat, in_long, trento_id, 4)
     print("\tData from API recived")
 
     ##save it on mongodb
@@ -70,7 +70,7 @@ if __name__ == "__main__":
                                     username = "root",
                                     password = "psw")
 
-    mydb = myclient["mydatabase"]
+    mydb = myclient[config["mongodb"]["databases"]["api_raw"]]
     traffic_id, air_id, weather_id = insert_docs(traffic_data, air_data, weather_data, mydb)
     print("\tData saved in mongodb")
 
@@ -87,7 +87,8 @@ if __name__ == "__main__":
       "status": "GREAT",
       "traffic_id": str(traffic_id),
       "air_id": str(air_id),
-      "weather_id": str(weather_id)
+      "weather_id": str(weather_id),
+      "request_time": request_time,
     })
     producer.flush()
     print(f"\t...message sent to: {BROKER_ADD_LIST[0]}:{BROKER_PORT_LIST[0]}-{TOPIC_PRODUCER}")

@@ -1,3 +1,35 @@
 body{
   margin: 0;
 }
+
+.centered-div{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.city-btn{
+  width: 150px;
+  height: 75px;
+  font-size: 18px;
+  font-weight: bold;
+  margin: 10px;
+}
+
+#my_header{
+  box-sizing: border-box;
+  padding-top: 0px;
+  margin-top: 0px;
+  height: 75px;
+  background-color: burlywood;
+  border-bottom: 2px solid gray;
+}
+
+.header-text{
+  margin-top: 0px;
+  padding-top: 20px;
+  padding-left: 10%;
+  display: flex;
+  justify-content: left;
+  align-items: left;
+}

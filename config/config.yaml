@@ -8,11 +8,16 @@ mongodb:
   local:
     address: "127.0.0.1"
     port: 27017
+    connection_string: "mongodb://localhost:27017/"
   docker:
     address: "mongodb://root:example@mongo"
     port: 27017
   atlas:
     connection_string: "mongodb+srv://admin:psw@cluster0.ew7zhpy.mongodb.net/"
+  databases:
+    api_raw: "api_raw"
+    preprocess_data: "preprocess_data"
+    output: "output"
 
 kafka:
   local:
@@ -42,6 +47,8 @@ kafka:
       address: "kafka-3"
       port: 9092
   topics:
+    input-head: "input"
     head-api_sink: "starter"
     api_sink-tail: "data_status"
+    tail-output: "output"
     
