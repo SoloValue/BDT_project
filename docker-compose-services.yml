@@ -39,7 +39,7 @@ services:
       KAFKA_ADVERTISED_LISTENERS: LISTENER_DOCKER_INTERNAL://kafka-2:9092,LISTENER_DOCKER_EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:39092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_DOCKER_INTERNAL
-  
+
   kafka-3:
     image: confluentinc/cp-kafka:latest
     container_name: kafka-3
@@ -58,7 +58,6 @@ services:
   mongo:
     image: mongo
     container_name: mongo
-    restart: always
     ports:
       - 27017:27017
     environment:
@@ -68,7 +67,6 @@ services:
   mongo-express:
     image: mongo-express
     container_name: m-express
-    restart: always
     depends_on:
       - mongo
     ports:
@@ -78,32 +76,5 @@ services:
       ME_CONFIG_MONGODB_ADMINPASSWORD: psw
       ME_CONFIG_MONGODB_URL: mongodb://root:psw@mongo:27017/
 
-  api_sink:
-    build: 
-      context: ./
-      dockerfile: ./api_sink/Dockerfile
-    container_name: api_sink
-    depends_on:
-      - kafka-1
-      - kafka-2
-      - kafka-3
-
-  head:
-    build: 
-      context: ./
-      dockerfile: ./head/Dockerfile
-    container_name: head
-    depends_on:
-      - kafka-1
-      - kafka-2
-      - kafka-3
-
-  tail:
-    build: 
-      context: ./
-      dockerfile: ./tail/Dockerfile
-    container_name: tail
-    depends_on:
-      - kafka-1
-      - kafka-2
-      - kafka-3
+networks:
+  aq_prediction:

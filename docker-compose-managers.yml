@@ -1,0 +1,23 @@
+version: '3'
+services:
+  api_sink:
+    build: 
+      context: ./
+      dockerfile: ./api_sink/Dockerfile
+    container_name: api_sink
+
+  head:
+    build: 
+      context: ./
+      dockerfile: ./head/Dockerfile
+    container_name: head
+
+  tail:
+    build: 
+      context: ./
+      dockerfile: ./tail/Dockerfile
+    container_name: tail
+
+networks:
+  aq_prediction:
+    external: true
