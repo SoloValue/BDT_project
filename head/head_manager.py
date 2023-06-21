@@ -16,20 +16,22 @@ if __name__ == "__main__":
     print(f"\tConfiguration file loaded from: {CONFIG_PATH}")
     PROJECT_ENV = config["project"]["environment"]
 
-  ## send start message (producer)
+  ## waiting for input message
   BROKER_ADD_LIST = [config["kafka"][PROJECT_ENV][f"broker-{i+1}"]["address"] for i in range(3)]
   BROKER_PORT_LIST = [config["kafka"][PROJECT_ENV][f"broker-{i+1}"]["port"] for i in range(3)]
   TOPIC_PRODUCER = config["kafka"]["topics"]["head-api_sink"]
-  TOPIC_CONSUMER = config["kafka"]["topics"]["api_sink-tail"]
+  TOPIC_CONSUMER_1 = config["kafka"]["topics"]["input-head"]
+  TOPIC_CONSUMER_2 = config["kafka"]["topics"]["api_sink-tail"]
 
   connected = False
   while not connected:
     try:
-      producer = KafkaProducer(
+      consumer_1 = KafkaConsumer(
           bootstrap_servers=[f'{BROKER_ADD_LIST[0]}:{BROKER_PORT_LIST[0]}',
                              f'{BROKER_ADD_LIST[1]}:{BROKER_PORT_LIST[1]}',
                              f'{BROKER_ADD_LIST[2]}:{BROKER_PORT_LIST[2]}'],
-          value_serializer = serializer)
+          value_deserializer = deserializer
+      )
       connected = True
     except errors.NoBrokersAvailable:
       print("\tNO BROKER AVAILABLE!")
@@ -37,6 +39,25 @@ if __name__ == "__main__":
       time.sleep(5)
   print(f"\tConnected to {BROKER_ADD_LIST[0]}:{BROKER_PORT_LIST[0]}")
 
+  consumer_1.subscribe(topics=TOPIC_CONSUMER_1)
+  print(f"\tWaiting for input message on: {TOPIC_CONSUMER_1} ...")
+  for message in consumer_1:
+    print ("%d:%d: msg=%s" % (
+      message.partition,
+      message.offset,
+      message.value))
+    if message.value["status"] == "START":
+      break
+
+  print(f"\t... message recived.")
+  
+  ## send start message (producer)
+  producer = KafkaProducer(
+      bootstrap_servers=[f'{BROKER_ADD_LIST[0]}:{BROKER_PORT_LIST[0]}',
+                          f'{BROKER_ADD_LIST[1]}:{BROKER_PORT_LIST[1]}',
+                          f'{BROKER_ADD_LIST[2]}:{BROKER_PORT_LIST[2]}'],
+      value_serializer = serializer
+  )
   time.sleep(5)
   print("\tSending start message...")
   current_time = datetime.now()
@@ -47,15 +68,17 @@ if __name__ == "__main__":
   producer.flush()
 
   ##wait for confirm message (consumer)
-  consumer = KafkaConsumer(
-    bootstrap_servers=[f'{BROKER_ADD_LIST[0]}:{BROKER_PORT_LIST[0]}'],
+  consumer_2 = KafkaConsumer(
+    bootstrap_servers=[f'{BROKER_ADD_LIST[0]}:{BROKER_PORT_LIST[0]}',
+                       f'{BROKER_ADD_LIST[1]}:{BROKER_PORT_LIST[1]}',
+                       f'{BROKER_ADD_LIST[2]}:{BROKER_PORT_LIST[2]}'],
     value_deserializer = deserializer,
     auto_offset_reset='latest'
   )
   
-  consumer.subscribe(topics=TOPIC_CONSUMER)
-  print(f"\tListening to {BROKER_ADD_LIST[0]}:{BROKER_PORT_LIST[0]} - {TOPIC_CONSUMER}...")
-  for message in consumer:
+  consumer_2.subscribe(topics=TOPIC_CONSUMER_2)
+  print(f"\tListening to {BROKER_ADD_LIST[0]}:{BROKER_PORT_LIST[0]} - {TOPIC_CONSUMER_2}...")
+  for message in consumer_2:
     print ("%d:%d: msg=%s" % (
       message.partition,
       message.offset,

@@ -5,8 +5,16 @@
 {% endblock %}
 
 {% block body %}
-<div>
+<div class="centered-div">
   <h1>Go Team 7!</h1>
-  <button href="/data" name="but">Press me</button>
+</div>
+<div class="centered-div">
+  <p>Choose a city to predict the Air Quality in that area for the next 4 days!</p>
+</div>
+<div class="centered-div">
+  <form method="POST">
+    <input class="city-btn" type="submit" value="Trento" formaction="/data/1">
+    <input class="city-btn" type="submit" value="Perugia" formaction="/data/2">
+  </form>
 </div>
 {% endblock %}
