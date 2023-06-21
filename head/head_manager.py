@@ -46,46 +46,46 @@ if __name__ == "__main__":
       message.partition,
       message.offset,
       message.value))
-    if message.value["status"] == "START":
+    if message.value["status"] != "START":
       break
 
-  print(f"\t... message recived.")
-  
-  ## send start message (producer)
-  producer = KafkaProducer(
-      bootstrap_servers=[f'{BROKER_ADD_LIST[0]}:{BROKER_PORT_LIST[0]}',
-                          f'{BROKER_ADD_LIST[1]}:{BROKER_PORT_LIST[1]}',
-                          f'{BROKER_ADD_LIST[2]}:{BROKER_PORT_LIST[2]}'],
-      value_serializer = serializer
-  )
-  time.sleep(5)
-  print("\tSending start message...")
-  current_time = datetime.now()
-  producer.send(TOPIC_PRODUCER, value={
-      "date": f'{current_time.year}.{current_time.month}.{current_time.day}:{current_time.hour}.{current_time.minute}.{current_time.second}',
-      "status": "START"
-    })
-  producer.flush()
-
-  ##wait for confirm message (consumer)
-  consumer_2 = KafkaConsumer(
-    bootstrap_servers=[f'{BROKER_ADD_LIST[0]}:{BROKER_PORT_LIST[0]}',
-                       f'{BROKER_ADD_LIST[1]}:{BROKER_PORT_LIST[1]}',
-                       f'{BROKER_ADD_LIST[2]}:{BROKER_PORT_LIST[2]}'],
-    value_deserializer = deserializer,
-    auto_offset_reset='latest'
-  )
-  
-  consumer_2.subscribe(topics=TOPIC_CONSUMER_2)
-  print(f"\tListening to {BROKER_ADD_LIST[0]}:{BROKER_PORT_LIST[0]} - {TOPIC_CONSUMER_2}...")
-  for message in consumer_2:
-    print ("%d:%d: msg=%s" % (
-      message.partition,
-      message.offset,
-      message.value))
+    print(f"\t... message recived.")
     
-    if message.value["status"] == "GREAT":
-      print("\tAPI sink compleated. Stopping consumer.")
-      break
-    else:
-      raise Exception(f"API sink gone wrong. Status: {message.value['status']}")
+    ## send start message (producer)
+    producer = KafkaProducer(
+        bootstrap_servers=[f'{BROKER_ADD_LIST[0]}:{BROKER_PORT_LIST[0]}',
+                            f'{BROKER_ADD_LIST[1]}:{BROKER_PORT_LIST[1]}',
+                            f'{BROKER_ADD_LIST[2]}:{BROKER_PORT_LIST[2]}'],
+        value_serializer = serializer
+    )
+    time.sleep(1)
+    print("\tSending start message...")
+    current_time = datetime.now()
+    producer.send(TOPIC_PRODUCER, value={
+        "date": f'{current_time.year}.{current_time.month}.{current_time.day}:{current_time.hour}.{current_time.minute}.{current_time.second}',
+        "status": "START"
+      })
+    producer.flush()
+
+    ##wait for confirm message (consumer)
+    consumer_2 = KafkaConsumer(
+      bootstrap_servers=[f'{BROKER_ADD_LIST[0]}:{BROKER_PORT_LIST[0]}',
+                        f'{BROKER_ADD_LIST[1]}:{BROKER_PORT_LIST[1]}',
+                        f'{BROKER_ADD_LIST[2]}:{BROKER_PORT_LIST[2]}'],
+      value_deserializer = deserializer,
+      auto_offset_reset='latest'
+    )
+    
+    consumer_2.subscribe(topics=TOPIC_CONSUMER_2)
+    print(f"\tListening to {BROKER_ADD_LIST[0]}:{BROKER_PORT_LIST[0]} - {TOPIC_CONSUMER_2}...")
+    for message in consumer_2:
+      print ("%d:%d: msg=%s" % (
+        message.partition,
+        message.offset,
+        message.value))
+      
+      if message.value["status"] == "GREAT":
+        print("\tAPI sink compleated. Stopping consumer.")
+        break
+      else:
+        raise Exception(f"API sink gone wrong. Status: {message.value['status']}")

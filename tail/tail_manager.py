@@ -107,4 +107,4 @@ if __name__ == "__main__":
         "predictions": predictions
       })
     producer.flush()
-    print("\tOutput sent.")
+    print(f"\tOutput sent to {TOPIC_PRODUCER}.")

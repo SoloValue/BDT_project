@@ -27,9 +27,9 @@ def pre_proc(db_api, db_PreProc, request_time):
         "resquest_time": request_time
         })
     
-    current_speed=traffic_json["request_data"]
-    free_flow_speed=traffic_json['request_data']
-    actual_traffic=(free_flow_speed-current_speed)/free_flow_speed
+    #current_speed=traffic_json["request_data"]
+    #free_flow_speed=traffic_json['request_data']
+    #actual_traffic=(free_flow_speed-current_speed)/free_flow_speed
 
     # actual_traffic=dict({'currentSpeed': current_speed,'freeFlowSpeed': free_flow_speed,"actual_traffic": actual_traffic})
 
