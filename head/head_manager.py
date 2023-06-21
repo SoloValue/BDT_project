@@ -58,7 +58,7 @@ if __name__ == "__main__":
                             f'{BROKER_ADD_LIST[2]}:{BROKER_PORT_LIST[2]}'],
         value_serializer = serializer
     )
-    time.sleep(1)
+    #time.sleep(1)
     print("\tSending start message...")
     current_time = datetime.now()
     producer.send(TOPIC_PRODUCER, value={

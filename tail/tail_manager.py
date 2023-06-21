@@ -99,7 +99,7 @@ if __name__ == "__main__":
                              f'{BROKER_ADD_LIST[2]}:{BROKER_PORT_LIST[2]}'],
           value_serializer = serializer
           )
-    time.sleep(2)
+    #time.sleep(1)
     current_time = datetime.now()
     producer.send(TOPIC_PRODUCER, value={
         "date": f'{current_time.year}.{current_time.month}.{current_time.day}:{current_time.hour}.{current_time.minute}.{current_time.second}',

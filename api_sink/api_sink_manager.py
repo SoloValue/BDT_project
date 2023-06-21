@@ -76,7 +76,7 @@ if __name__ == "__main__":
 
     ##start next section (producer)
     print("\tSending message...")
-    time.sleep(1)
+    #time.sleep(1)
     producer = KafkaProducer(
         bootstrap_servers = [f'{BROKER_ADD_LIST[0]}:{BROKER_PORT_LIST[0]}'],
         value_serializer = serializer)
