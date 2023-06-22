@@ -5,7 +5,7 @@ from pyspark.sql.functions import explode, col
 from pyspark.sql.types import *  # to write data schema
 
 connection_string="mongodb://root:psw@localhost:27017/"    # old atlas connection 
-#connection_string = "mongodb://localhost:27017/"
+betas=[1.0, -0.1,-0.5]
 
 spark = SparkSession.builder.master("local").appName("MongoDBSparkConnector") \
     .config("spark.driver.memory", "15g") \
@@ -43,14 +43,20 @@ df = df.withColumn("datetime", col("forecast.datetime")) \
     .withColumn("precipitazioni", col("forecast.precipitazioni")) \
     .withColumn("prob_prec", col("forecast.prob_prec")) \
     .withColumn("wind", col("forecast.wind")) \
-
-# Drop the original 'forecast' column if needed
+    .withColumn("computed",  (col("forecast.prob_prec")*col("forecast.precipitazioni"))*betas[1] + col("forecast.wind")*betas[2])
 df = df.drop("forecast")
 
-
-df.printSchema()
+#df.printSchema()
 
 df.show()
 
+rdd_weather = df.select("computed").rdd
+
+f_of_x = 50 #AQI of this moment
+f_list = [f_of_x]
+for value in rdd_weather.collect():
+    f_of_x = max(1, f_of_x + value[0])
+    f_list.append(f_of_x)
+print(f_list)
 
 spark.stop()
