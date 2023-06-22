@@ -73,8 +73,8 @@ if __name__ == "__main__":
     db_pp = mongo_client[config["mongodb"]["databases"]["preprocess_data"]]
     request_time = message.value["request_time"]
     #weather_data, traffic_data, air_data = pre_proc(db_api, db_pp, request_time)
-    pre_proc(db_api, db_pp, request_time)
-
+    pp_weather = pre_proc(db_api, db_pp, request_time)
+    #print(pp_weather)
     print(f"\tData recovered from: {CONNECTION_STRING}")
 
     ## ML project 2 #TODO

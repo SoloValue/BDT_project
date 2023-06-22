@@ -1,10 +1,10 @@
 import pyspark
 from pyspark import SparkContext
-from pyspark.sql import SparkSession 
-from pyspark.sql import SQLContext
-from pyspark.sql.types import StructType  # to write data schema
+from pyspark.sql import SparkSession, SQLContext
+from pyspark.sql.functions import explode, col
+from pyspark.sql.types import *  # to write data schema
 
-connection_string="mongodb+srv://admin:psw@cluster0.ew7zhpy.mongodb.net/"    # old atlas connection 
+connection_string="mongodb://root:psw@localhost:27017/"    # old atlas connection 
 #connection_string = "mongodb://localhost:27017/"
 
 spark = SparkSession.builder.master("local").appName("MongoDBSparkConnector") \
@@ -16,30 +16,41 @@ spark = SparkSession.builder.master("local").appName("MongoDBSparkConnector") \
 
 sc = spark.sparkContext.setLogLevel("WARN")
 
+weather_schema = StructType() \
+    .add("_id", StringType()) \
+    .add("forecast", 
+            ArrayType(
+                StructType() \
+                .add("datetime", StringType()) \
+                .add("precipitazioni", DoubleType()) \
+                .add("prob_prec", IntegerType()) \
+                .add("wind", DoubleType())   
+         ))
+    
+
 ## FOLLOWING SECTION IS TO FIX
 # read and create spark dataframe
 df = spark.read.format("mongodb") \
     .option("uri", connection_string) \
-    .option("database", "mydatabase") \
-    .option("collection", "tomtom") \
-    .option("collection", "air") \
+    .option("database", "preprocess_data") \
     .option("collection", "weather") \
+    .schema(weather_schema) \
     .load()
+
+df = df.select(explode("forecast").alias("forecast"))
+
+df = df.withColumn("datetime", col("forecast.datetime")) \
+    .withColumn("precipitazioni", col("forecast.precipitazioni")) \
+    .withColumn("prob_prec", col("forecast.prob_prec")) \
+    .withColumn("wind", col("forecast.wind")) \
+
+# Drop the original 'forecast' column if needed
+df = df.drop("forecast")
+
 
 df.printSchema()
 
-# Create a schema for the JSON data #TO CHECK WITH df.printSchema above with actual database
-json_schema = StructType().add("request_time", "string") \
-                          .add("traffic_flow", "double") \
-                          .add("aqi", "integer") \
-                          .add("precipitazioni", "integer") \
-                          .add("prob_precipitazioni", "integer") \
-                          .add("wind", "double")    # maybe put as double ?
-
-# Convert JSON data to a PySpark DataFrame
-#data_df = spark.createDataFrame(df, schema=json_schema)
 df.show()
 
+
 spark.stop()
-
-

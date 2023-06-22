@@ -8,24 +8,28 @@ def pre_proc(db_api, db_PreProc, request_time):
     weather_json = weather_collection.find_one({
         "request_time": request_time
         })
-    weather_forecasts=weather_json["request_data"]["localita"]["previsione_giorno"]
+    previsione_giorno=weather_json["request_data"]["localita"]["previsione_giorno"]
 
-    days = dict()
-    for i,el in enumerate(weather_forecasts):
-        hourly_forecast=el['previsione_oraria']
-        day = []
-        for el1 in hourly_forecast:
-            day.append(dict([("hour", el1['ora']) , ("precipitazioni",el1['precipitazioni']),("prob_prec",el1['probabilita_prec']),("wind",el1['vento']['intensita'])]))
-        days[el['data']] = day
+    pp_weather = dict()
+    days_list = []
+    for i,giorno in enumerate(previsione_giorno):
+        previsione_oraria=giorno['previsione_oraria']
+        
+        for ora in previsione_oraria:
+            days_list.append(dict([("datetime", f"{giorno['data']}:{ora['ora']}"),
+                             ("precipitazioni",ora['precipitazioni']),
+                             ("prob_prec",ora['probabilita_prec']),
+                             ("wind",float(ora['vento']['intensita']))]))
+    pp_weather["forecast"] = days_list
 
     wp_collection = db_PreProc["weather"]
-    wp_collection.insert_one(days)
-
+    wp_collection.insert_one(pp_weather)
+    return pp_weather
     # # traffic-----------------------------------------
-    traffic_collection=db_api["tomtom"]
-    traffic_json=traffic_collection.find_one({
-        "resquest_time": request_time
-        })
+    #traffic_collection=db_api["tomtom"]
+    #traffic_json=traffic_collection.find_one({
+    #    "resquest_time": request_time
+    #    })
     
     #current_speed=traffic_json["request_data"]
     #free_flow_speed=traffic_json['request_data']
