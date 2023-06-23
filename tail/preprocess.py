@@ -24,44 +24,43 @@ def pre_proc(db_api, db_PreProc, request_time):
 
     wp_collection = db_PreProc["weather"]
     wp_collection.insert_one(pp_weather)
-    return pp_weather
-    # # traffic-----------------------------------------
-    #traffic_collection=db_api["tomtom"]
-    #traffic_json=traffic_collection.find_one({
-    #    "resquest_time": request_time
-    #    })
     
-    #current_speed=traffic_json["request_data"]
-    #free_flow_speed=traffic_json['request_data']
-    #actual_traffic=(free_flow_speed-current_speed)/free_flow_speed
 
-    # actual_traffic=dict({'currentSpeed': current_speed,'freeFlowSpeed': free_flow_speed,"actual_traffic": actual_traffic})
+    # # traffic-----------------------------------------
 
-    # tomtom_collection = db_PreProc["tomtom"]
-    # tomtom_collection.insert_one(actual_traffic)
+    traffic_collection=db_api["tomtom"]
+    traffic_json=traffic_collection.find_one({
+        "request_time": request_time
+        })
+    
+    current_speed=traffic_json['request_data']['currentSpeed']
+    free_flow_speed=traffic_json['request_data']['freeFlowSpeed']
+    actual_traffic=(free_flow_speed-current_speed)/free_flow_speed
+
+    actual_traffic=dict({"datetime": f"{giorno['data']}:{ora['ora']}","actual_traffic": actual_traffic})
+
+    tomtom_collection = db_PreProc["tomtom"]
+    tomtom_collection.insert_one(actual_traffic)
 
     # #air quality index ---------------------------------
-    # aqi_collection = db_api["air"]
-    # air_json = aqi_collection.find_one({
-    #     "resquest_time": request_time
-    #     })
-    # air_forecasts=air_json["request_data"]
+    aqi_collection = db_api["air"]
+    air_json = aqi_collection.find_one({
+          "request_time": request_time
+          })
     
-    # air_days = dict()
-    # for i,el in enumerate(air_forecasts):
-    #     hourly_forecast=el['']
-    #     day = []
+    i=air_json['request_data']
+    air_forecasts=[]
+    aqi_forecasts=dict()
+    for el in i:
+        aqi=el.get('aqi')
+        datetime=el.get("datetime")
+        air_forecasts.append(dict({"datetime": datetime,"aqi": aqi}))
 
+    aqi_forecasts['forecasts']=air_forecasts
 
-
-    #     for el1 in hourly_forecast:
-    #         day.append(dict([("hour", el1['ora']) , ("precipitazioni",el1['precipitazioni']),("prob_prec",el1['probabilita_prec']),("wind",el1['vento']['intensita'])]))
-    #     days[el['data']] = day
-
-    # wp_collection = db_PreProc["weather"]
-    # wp_collection.insert_one(days)
-
-
+    air_collection = db_PreProc["air"]
+    air_collection.insert_one(aqi_forecasts)
+    
 
 
 if __name__ == "__main__":
