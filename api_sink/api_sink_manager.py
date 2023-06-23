@@ -59,6 +59,7 @@ if __name__ == "__main__":
 
     id_localita, in_lat, in_long=get_request_input("Trento")
     print({'id_loc': id_localita.values[0], 'lat': in_lat.values[0], 'long': in_long.values[0]})
+    
     traffic_data, air_data, weather_data, request_time = get_all_requests(in_lat, in_long, id_localita, 4)
     print("\tData from API recived")
 
