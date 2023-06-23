@@ -4,6 +4,7 @@ import yaml
 import pymongo
 from datetime import datetime
 import time
+import pandas as pd 
 
 #CLASSESS----------------------------
 from serializers import serializer, deserializer
@@ -48,12 +49,16 @@ if __name__ == "__main__":
       message.offset,
       message.value))
     
-    ##retrive data from API
-    in_lat = 46.065435
-    in_long = 11.113922
-    trento_id = 7428
+    ##retrieve data from API
+    def get_request_input(localita):
+        data_cities=pd.read_csv('./config/cities.csv')
+        id_localita=data_cities.loc[data_cities["localita"]==localita, data_cities["id_localita"]]
+        in_lat=data_cities.loc[data_cities["localita"]==localita, data_cities['lat']]
+        in_long=data_cities.loc[data_cities["localita"]==localita, data_cities['long']]
+        return id_localita, in_lat, in_long
 
-    traffic_data, air_data, weather_data, request_time = get_all_requests(in_lat, in_long, trento_id, 4)
+    id_localita, in_lat, in_long=get_request_input("Trento")
+    traffic_data, air_data, weather_data, request_time = get_all_requests(in_lat, in_long, id_localita, 4)
     print("\tData from API recived")
 
     ##save it on mongodb
