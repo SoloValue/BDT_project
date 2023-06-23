@@ -2,7 +2,6 @@
 from kafka import KafkaConsumer, KafkaProducer, errors
 import pymongo
 import yaml
-from datetime import datetime
 import time
 
 #CLASSESS----------------------------
@@ -100,9 +99,8 @@ if __name__ == "__main__":
           value_serializer = serializer
           )
     #time.sleep(1)
-    current_time = datetime.now()
     producer.send(TOPIC_PRODUCER, value={
-        "date": f'{current_time.year}.{current_time.month}.{current_time.day}:{current_time.hour}.{current_time.minute}.{current_time.second}',
+        "request_time": request_time,
         "status": "GREAT",
         "predictions": predictions
       })

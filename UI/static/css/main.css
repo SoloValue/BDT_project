@@ -1,5 +1,6 @@
 body{
   margin: 0;
+  font-family: sans-serif;
 }
 
 .centered-div{
@@ -25,11 +26,51 @@ body{
   border-bottom: 2px solid gray;
 }
 
+.back-link {
+  display: inline-block;
+  text-decoration: none;
+  color: #333;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.back-link i {
+  padding-top: 20px;
+  margin-right: 5px;
+}
+
 .header-text{
   margin-top: 0px;
-  padding-top: 20px;
   padding-left: 10%;
   display: flex;
   justify-content: left;
   align-items: left;
+}
+
+table {
+  border-collapse: collapse;
+  text-align: center;
+	vertical-align: middle;
+}
+
+th, td {
+  border: 1px solid black;
+  padding: 8px;
+}
+
+thead th {
+  width: 30%;
+}
+
+thead {
+  background-color: #333;
+  color: white;
+}
+
+caption {
+  font-weight: bold;
+  font-size: 24px;
+  text-align: left;
+  color: #333;
+  margin-bottom: 16px;
 }

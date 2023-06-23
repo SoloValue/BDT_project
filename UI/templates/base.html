@@ -4,11 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
     {% block head %}{% endblock %}
   </head>
   <body>
     <header id="my_header">
-      <h2 href="/" class="header-text">Air Quality Prediction</h2>
+      <a href="/" class="back-link">
+        <i class="fas fa-arrow-left"></i> Home
+      </a>
+      <h2 class="header-text">Air Quality Prediction</h2>
     </header>
     {% block body %}{% endblock %}
   </body>
