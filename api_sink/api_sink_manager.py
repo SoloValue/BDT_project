@@ -51,13 +51,14 @@ if __name__ == "__main__":
     
     ##retrieve data from API
     def get_request_input(localita):
-        data_cities=pd.read_csv('./config/cities.csv')
-        id_localita=data_cities.loc[data_cities["localita"]==localita, data_cities["id_localita"]]
-        in_lat=data_cities.loc[data_cities["localita"]==localita, data_cities['lat']]
-        in_long=data_cities.loc[data_cities["localita"]==localita, data_cities['long']]
-        return id_localita, in_lat, in_long
+      data_cities=pd.read_csv('./config/cities.csv')
+      id_localita=data_cities.loc[data_cities['localita'] == localita, "id_localita"]
+      in_lat=data_cities.loc[data_cities['localita'] == localita, "lat"]
+      in_long=data_cities.loc[data_cities['localita'] == localita, "long"]
+      return id_localita, in_lat, in_long
 
     id_localita, in_lat, in_long=get_request_input("Trento")
+    print({'id_loc': id_localita.values[0], 'lat': in_lat.values[0], 'long': in_long.values[0]})
     traffic_data, air_data, weather_data, request_time = get_all_requests(in_lat, in_long, id_localita, 4)
     print("\tData from API recived")
 

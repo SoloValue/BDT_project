@@ -107,4 +107,3 @@ if __name__ == "__main__":
     tomtom_data, air_data, weather_data, request_time = get_all_requests(in_lat, in_long, trento_id, 4)
     traffic_id, air_id, weather_id = insert_docs(tomtom_data, air_data, weather_data, mydb)
     
-
