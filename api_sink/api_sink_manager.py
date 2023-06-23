@@ -83,7 +83,9 @@ if __name__ == "__main__":
     print("\tSending message...")
     #time.sleep(1)
     producer = KafkaProducer(
-        bootstrap_servers = [f'{BROKER_ADD_LIST[0]}:{BROKER_PORT_LIST[0]}'],
+        bootstrap_servers = [f'{BROKER_ADD_LIST[0]}:{BROKER_PORT_LIST[0]}',
+                             f'{BROKER_ADD_LIST[1]}:{BROKER_PORT_LIST[1]}',
+                             f'{BROKER_ADD_LIST[2]}:{BROKER_PORT_LIST[2]}'],
         value_serializer = serializer)
     
     current_time = datetime.now()

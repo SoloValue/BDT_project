@@ -6,9 +6,9 @@
 
 {% block body %}
 <div class="centered-div">
-  <h1>AQ of Trento:</h1>
-</div>
-<div>
-  <h2>{{predictions}}</h2>
+  <table>
+    <caption>Air Quality of Trento:</caption>
+    {{table | safe}}
+  </table>
 </div>
 {% endblock %}

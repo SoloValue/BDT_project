@@ -3,6 +3,7 @@ from markupsafe import escape
 from kafka import KafkaConsumer, KafkaProducer, errors
 from serializers import serializer, deserializer
 import yaml
+from datetime import datetime
 
 ## load config
 CONFIG_PATH = "./config/config.yaml"
@@ -54,9 +55,25 @@ def data(id_location):
     for message in consumer:
       if message.value["status"] != 'GREAT':
         pass
-      
+      now = datetime.now()
       predictions = message.value["predictions"]
-      return render_template('data.html', predictions = predictions)
+
+      table = "<thead><th>Date</th><th>AQI</th><th>Expected Traffic</th></thead>"
+      for i, pred in enumerate(predictions):
+        if pred <= 50:
+          color_pred = "rgb(151, 186, 251)" 
+        elif pred > 100:
+          color_pred = "rgb(255, 68, 68)"
+        else:
+          color_pred = "rgb(68, 200, 68)"
+
+        table += "<tr>"
+
+        table += f"<td>{now.hour+i}</td><td style='background-color: {color_pred} ;'>{pred}</td><td>0.1</td>"
+
+        table += "</tr>"
+
+      return render_template('data.html', table = table)
   else:
     redirect('/')
 
