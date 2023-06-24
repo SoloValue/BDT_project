@@ -8,19 +8,20 @@ import csv
 
 # CITY DATA ----------------------------------------------
 def get_request_input(id_location):    
-      with open('./config/cities.csv') as csv_f:
+    with open('./config/cities.csv') as csv_f:
         csv_r = csv.reader(csv_f, delimiter=',')
         line_count = 0
         for row in csv_r:
-          if line_count == 0:
-            pass
-          else:
-            if row[2] == str(id_location):
-              location = row[0]
-              in_lat = row[3]
-              in_long = row[4]
-            line_count += 1
-        return location, in_lat, in_long
+            if line_count == 0:
+                line_count += 1
+                pass
+            else:
+                line_count += 1
+                if row[2] == str(id_location):
+                    location = row[0]
+                    in_lat = row[3]
+                    in_long = row[4]
+    return location, in_lat, in_long
 
 # REAL TIME REQUESTS -------------------------------------
 def rt_tomtom_request(lat, long_, time):
@@ -128,14 +129,7 @@ if __name__ == "__main__":
     in_lat = 46.065435
     in_long = 11.113922
     trento_id = 7428
-<<<<<<< Updated upstream
-    
-    request_time = datetime.now().isoformat()
-    tomtom_data, air_data, weather_data = get_all_requests(in_lat, in_long, trento_id, request_time, 4)
-    traffic_id, air_id, weather_id = insert_docs(tomtom_data, air_data, weather_data, mydb)
-=======
 
     tomtom_data, air_data, weather_data, request_time = get_all_requests(in_lat, in_long, trento_id, 4)
     traffic_id, air_id, weather_id = insert_docs(tomtom_data, air_data, weather_data,db_api)
->>>>>>> Stashed changes
     

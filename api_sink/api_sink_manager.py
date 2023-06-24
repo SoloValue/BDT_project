@@ -88,6 +88,7 @@ if __name__ == "__main__":
     
     producer.send(TOPIC_PRODUCER, value={
       "request_time": request_time,
+      "id_location": id_location,
       "status": "GREAT"
     })
     producer.flush()

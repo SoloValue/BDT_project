@@ -78,15 +78,18 @@ if __name__ == "__main__":
 
     ## ML project 2 #TODO
     predictions = []
+    exp_traffic = []
     for i in range(97):
       predictions.append(120-i)
+      exp_traffic.append(i/37)
     print(f"Predictions: {predictions}")
 
     ## Saving predictions
     pred_db = mongo_client[config["mongodb"]["databases"]["output"]]
     pred_collection = pred_db["predictions"]
     pred_collection.insert_one({
-      "datetime": request_time,
+      "request_time": request_time,
+      "id_location": message.value["id_location"],
       "predictions": predictions
     })
 
@@ -102,7 +105,8 @@ if __name__ == "__main__":
     producer.send(TOPIC_PRODUCER, value={
         "request_time": request_time,
         "status": "GREAT",
-        "predictions": predictions
+        "predictions": predictions,
+        "exp_traffic": exp_traffic
       })
     producer.flush()
     print(f"\Predictions sent to topic: {TOPIC_PRODUCER}.")

@@ -64,7 +64,9 @@ def data(id_location):
     for message in consumer:
       if message.value["status"] != 'GREAT':
         pass
-      now = datetime.now()
+      request_time = datetime.fromisoformat(message.value["request_time"])
+      predictions = message.value["predictions"]
+      exp_traffic = message.value["exp_traffic"]
       predictions = message.value["predictions"]
 
       table = "<thead><th>Date</th><th>AQI</th><th>Expected Traffic</th></thead>"
@@ -77,9 +79,9 @@ def data(id_location):
           color_pred = "rgb(68, 200, 68)"
 
         table += "<tr>"
-
-        table += f"<td>{now.hour+i}</td><td style='background-color: {color_pred} ;'>{pred}</td><td>0.1</td>"
-
+        table += f"<td>{(request_time.hour+i)%24}.00 {request_time.day+((request_time.hour+i)//24)}/{request_time.month}/{request_time.year}</td>"
+        table += f"<td style='background-color: {color_pred} ;'>{pred}</td>"
+        table += f"<td>{exp_traffic[i]}</td>"
         table += "</tr>"
         
       location = "Aula 16"

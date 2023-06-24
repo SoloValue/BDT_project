@@ -6,6 +6,7 @@ import time
 
 #CLASSESS----------------------------
 from serializers import serializer, deserializer
+from prediction_retrival import prediction_retrival
 
 #MAIN--------------------------------
 if __name__ == "__main__":
