@@ -11,7 +11,7 @@ CONFIG_PATH = "./config/config.yaml"
 with open(CONFIG_PATH, "r") as f:
   config = yaml.safe_load(f)
   #print(f"\tConfiguration file loaded from: {CONFIG_PATH}")
-  PROJECT_ENV = config["project"]["environment"]
+  PROJECT_ENV = "local"
 
 BROKER_ADD_LIST = [config["kafka"][PROJECT_ENV][f"broker-{i+1}"]["address"] for i in range(3)]
 BROKER_PORT_LIST = [config["kafka"][PROJECT_ENV][f"broker-{i+1}"]["port"] for i in range(3)]
