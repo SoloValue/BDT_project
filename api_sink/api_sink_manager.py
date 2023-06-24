@@ -56,7 +56,7 @@ if __name__ == "__main__":
     location, in_lat, in_long = get_request_input(id_location)
     #print({'id_loc': id_localita, 'lat': in_lat, 'long': in_long})
     
-    traffic_data, air_data, weather_data = get_all_requests(in_lat, in_long, id_location, 4, request_time)
+    traffic_data, air_data, weather_data = get_all_requests(in_lat, in_long, id_location, 5, request_time)
     print("\tData from API recived")
 
     ##save it on mongodb
