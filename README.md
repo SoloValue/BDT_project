@@ -56,14 +56,17 @@ The project comes with 2 docker-compose files that manage everything but the __U
 
 Then you can run the docker files:
 ```bash
-docker-compose -f docker-compose-managers.yml up
-```
-
-```bash
 docker-compose -f docker-compose-services.yml up
 ```
 
-Once all 3 managers show the message "Waiting for message" !TODO!
+```bash
+docker-compose -f docker-compose-managers.yml up
+```
+
+You shold now see the following messages on the bash running the `docker-compose-managers.yml` file:
+
+![managers working](https://github.com/SoloValue/BDT_project/assets/119301751/09c96a18-a22b-4a51-bdf2-de5c95aeecb8)
+
 
 And finally you can start the __UI__ by running:
 ```bash
@@ -79,3 +82,13 @@ Connecting to the address shown on the console (default is localhost:5000) you w
 For this project we worked using:
 + Docker v24.0.2
 + Docker Compose v2.18.1
++ Python v3.11.0
++ Flask v2.3.2
+
+---
+
+### Authors
+
+- Elisa Basso [@elisabasso00](https://github.com/elisabasso00)
+- Matteo Moscatelli [@SoloValue](https://github.com/SoloValue)
+- Sara Tegoni [@sraatgn](https://github.com/sraatgn)
