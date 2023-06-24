@@ -63,16 +63,14 @@ if __name__ == "__main__":
     MONGO_ENV = config["mongodb"]["environment"]
     if MONGO_ENV == "atlas":
       CONNECTION_STRING = config["mongodb"][MONGO_ENV]["connection_string"]
-      myclient = pymongo.MongoClient(CONNECTION_STRING)
     else:
-      MONGO_ADD = CONNECTION_STRING = config["mongodb"][MONGO_ENV]["address"]
-      MONGO_PORT = CONNECTION_STRING = config["mongodb"][MONGO_ENV]["port"]
-      username = config["mongodb"]["username"]
-      username = config["mongodb"]["password"]
-      myclient = pymongo.MongoClient(f'{MONGO_ADD}:{MONGO_PORT}',
-                                    username = "root",
-                                    password = "psw")
-
+      MONGO_ADD = config["mongodb"][MONGO_ENV]["address"]
+      MONGO_PORT = config["mongodb"][MONGO_ENV]["port"]
+      MONGO_USER = config["mongodb"]["username"]
+      MONGO_PSW = config["mongodb"]["password"]
+      CONNECTION_STRING = f'mongodb://{MONGO_USER}:{MONGO_PSW}@{MONGO_ADD}:{MONGO_PORT}'
+      
+    myclient = pymongo.MongoClient(CONNECTION_STRING)
     mydb = myclient[config["mongodb"]["databases"]["api_raw"]]
     traffic_id, air_id, weather_id = insert_docs(traffic_data, air_data, weather_data, mydb)
     print("\tData saved in mongodb")

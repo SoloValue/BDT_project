@@ -90,7 +90,8 @@ if __name__ == "__main__":
     pred_collection.insert_one({
       "request_time": request_time,
       "id_location": message.value["id_location"],
-      "predictions": predictions
+      "predictions": predictions,
+      "exp_traffic": exp_traffic
     })
 
     ## Send output

@@ -8,7 +8,6 @@ mongodb:
   local:
     address: "127.0.0.1"
     port: 27017
-    connection_string: "mongodb://localhost:27017/"
   docker:
     address: "mongodb://root:example@mongo"
     port: 27017
