@@ -61,7 +61,7 @@ def pre_proc(db_api, db_PreProc, request_time):
         actual_traffic["day_of_the_weeek"]=day_of_week
         tomtom_traffic.append(actual_traffic)
 
-    with open( ".\config\historical_tomtom.json", "r") as f:
+    with open( "./config/historical_tomtom.json", "r") as f:
         historical_tomtom=json.load(f)
         
         for i, row in enumerate(tomtom_traffic):
@@ -79,7 +79,7 @@ def pre_proc(db_api, db_PreProc, request_time):
                     act_traf= historical_tomtom["festivo"][hour]
                     row["actual_traffic"] = act_traf
     
-    print(tomtom_traffic)
+    #print(tomtom_traffic)
                 
             
 

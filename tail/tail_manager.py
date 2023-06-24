@@ -40,7 +40,7 @@ if __name__ == "__main__":
   print(f"\tConnected to {BROKER_ADD_LIST[0]}:{BROKER_PORT_LIST[0]}")
 
   consumer.subscribe(topics=TOPIC_CONSUMER)
-  print(f'\tListening to topic: {TOPIC_CONSUMER}...')
+  print(f'\tWaiting for message on: {TOPIC_CONSUMER}...')
   for message in consumer:
     print ("%d:%d: msg=%s" % (
       message.partition,
@@ -110,4 +110,4 @@ if __name__ == "__main__":
         "exp_traffic": exp_traffic
       })
     producer.flush()
-    print(f"\Predictions sent to topic: {TOPIC_PRODUCER}.")
+    print(f"\tPredictions sent to topic: {TOPIC_PRODUCER}.")

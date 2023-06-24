@@ -42,7 +42,7 @@ if __name__ == "__main__":
   print(f"\tConnected to {BROKER_ADD_LIST[0]}:{BROKER_PORT_LIST[0]}")
 
   consumer_1.subscribe(topics=TOPIC_CONSUMER_1)
-  print(f"\tWaiting for input message on: {TOPIC_CONSUMER_1} ...")
+  print(f"\tWaiting for message on: {TOPIC_CONSUMER_1} ...")
   for message in consumer_1:
     print ("%d:%d: msg=%s" % (
       message.partition,

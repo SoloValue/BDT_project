@@ -9,7 +9,7 @@ mongodb:
     address: "127.0.0.1"
     port: 27017
   docker:
-    address: "mongodb://root:example@mongo"
+    address: "mongo"
     port: 27017
   atlas:
     connection_string: "mongodb+srv://admin:psw@cluster0.ew7zhpy.mongodb.net/"
