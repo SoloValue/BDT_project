@@ -33,12 +33,16 @@ weather_schema = StructType() \
                 .add("wind", DoubleType())   
          ))
     
-tomtom_schema=ArrayType(
+tomtom_schema=StructType() \
+    .add("_id", StringType()) \
+    .add("request_time", StringType())\
+    .add('forecasts',
+            ArrayType(
                 StructType()\
-        .add("_id", StringType())\
-        .add("request_time", StringType())\
-        .add("datetime", StringType())\
-        .add("actual_traffic",IntegerType()))
+                .add("request_time", StringType())\
+                .add("datetime", StringType())\
+                .add("actual_traffic",DoubleType())
+            ))
 
 air_schema=StructType()\
     .add("_id", StringType())\
@@ -64,20 +68,20 @@ df_weather= spark.read.format("mongodb") \
     .schema(weather_schema) \
     .load()
 
-df_weather = df_weather.select(explode("forecast").alias("forecast"))
+df_weather = df_weather.select(explode("forecasts").alias("forecasts"))
 
-df_weather=df_weather.filter(df_weather["forecast.request_time"]==request_time)
+df_weather=df_weather.filter(df_weather["forecasts.request_time"]==request_time)
 
-df_weather_with_date = df_weather.withColumn("request_time", col("forecast.request_time"))\
-    .withColumn("datetime", col('forecast.datetime'))\
+df_weather_with_date = df_weather.withColumn("request_time", col("forecasts.request_time"))\
+    .withColumn("datetime", col('forecasts.datetime'))\
     .withColumn('date', substring('datetime', 1, 10))\
     .withColumn('hour', substring('datetime', 12, 2))\
-    .withColumn("precipitazioni", col("forecast.precipitazioni")) \
-    .withColumn("prob_prec", col("forecast.prob_prec")) \
-    .withColumn("wind", col("forecast.wind")) \
-    .withColumn("computed",  (col("forecast.prob_prec")*col("forecast.precipitazioni"))*betas[1] + col("forecast.wind")*betas[2])
+    .withColumn("precipitazioni", col("forecasts.precipitazioni")) \
+    .withColumn("prob_prec", col("forecasts.prob_prec")) \
+    .withColumn("wind", col("forecasts.wind")) \
+    .withColumn("computed",  (col("forecasts.prob_prec")*col("forecasts.precipitazioni"))*betas[1] + col("forecasts.wind")*betas[2])
 df_weather_with_day=df_weather_with_date.withColumn('day_of_week', date_format('date', 'EEEE'))
-df_weather_with_day = df_weather_with_day.drop("forecast")
+df_weather_with_day = df_weather_with_day.drop("forecasts")
 
 #df.printSchema()
 
@@ -93,16 +97,20 @@ df_tomtom= spark.read.format("mongodb") \
     .schema(tomtom_schema) \
     .load()
 
-df_tomtom=df_tomtom.filter(df_tomtom["request_time"]==request_time)
+df_tomtom = df_tomtom.select(explode("forecasts").alias("forecasts"))
 
-df_tomtom_with_date= df_tomtom.withColumn("datetime", col('datetime')) \
+df_tomtom=df_tomtom.filter(df_tomtom["forecasts.request_time"]==request_time)
+
+df_tomtom_with_date= df_tomtom.withColumn("request_time", col("forecasts.request_time"))\
+    .withColumn("datetime", col('forecasts.datetime'))\
     .withColumn('date', substring('datetime', 1, 10))\
     .withColumn('hour', substring('datetime', 12, 2))\
-    .withColumn('actual_traffic', col("actual_traffic")) 
-    
+    .withColumn("actual_traffic", col("forecasts.actual_traffic")) \
+
    
 df_tomtom_with_day= df_tomtom_with_date.withColumn('day_of_week', date_format('date', 'EEEE'))
 df_tomtom_with_day=df_tomtom_with_day.drop("_id")
+df_tomtom_with_day=df_tomtom_with_day.drop("forecasts")
 df_tomtom_with_day.show()
 
 #AIR--------------------

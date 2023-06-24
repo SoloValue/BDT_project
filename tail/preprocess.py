@@ -5,36 +5,53 @@ from datetime import timedelta
 import copy
 import json
 
-giorni={"feriale":["Monday", "Tuesday", "Wednesday", "Thuesday", "Friday", "Saturday"],
-        "festivo": ["Sunday"]}
-
 def pre_proc(db_api, db_PreProc, request_time):
 
     # weather ---------------------------------------
+
+    actual_hour= dt.strptime(request_time, '%Y-%m-%dT%H:%M:%S.%f')
+    bottom_limit= actual_hour.strftime('%Y-%m-%d:%H')
+
+    parsed_datetime = dt.strptime(bottom_limit, '%Y-%m-%d:%H')
+    future_datetime = parsed_datetime + timedelta(hours=96)
+    top_limit = future_datetime.strptime(future_datetimes, '%Y-%m-%d:%H')
+   
+
     weather_collection = db_api["weather"]
     weather_json = weather_collection.find_one({
         "request_time": request_time
         })
     previsione_giorno=weather_json["request_data"]["localita"]["previsione_giorno"]
 
-    pp_weather = {"request_time": request_time}
+    pp_weather = {}
     days_list = []
     for i,giorno in enumerate(previsione_giorno):
         previsione_oraria=giorno['previsione_oraria']
         
         for ora in previsione_oraria:
             days_list.append(dict([("request_time", request_time),
-                            ("datetime", f"{giorno['data']}:{ora['ora']}"),                                   
+                            ("datetime", dt.strptime((f"{giorno['data']}:{ora['ora']}"),'%Y-%m-%d:%H')),                                   
                             ("precipitazioni",ora['precipitazioni']),
                             ("prob_prec",ora['probabilita_prec']),
                             ("wind",float(ora['vento']['intensita']))]))
     pp_weather["forecast"] = days_list
 
+    pp_process_weather={"request_time": request_time}
+    forecasts=[]
+    for el in pp_weather["forecast"]:
+        if el["datetime"]>=bottom_limit and el["datetime"]<=top_limit:
+            forecasts.append(el)
+    pp_process_weather['forecasts']=forecasts
+    print(pp_process_weather)
+
     wp_collection = db_PreProc["weather"]
-    wp_collection.insert_one(pp_weather)
+    wp_collection.insert_one(pp_process_weather)
     
 
     # # traffic-----------------------------------------
+
+    giorni={"feriale":["Monday", "Tuesday", "Wednesday", "Thuesday", "Friday", "Saturday"],
+        "festivo": ["Sunday"]}
 
     traffic_collection=db_api["tomtom"]
     traffic_json=traffic_collection.find_one({
@@ -50,7 +67,8 @@ def pre_proc(db_api, db_PreProc, request_time):
 
     actual_traf=dict({"request_time":request_time})
 
-    tomtom_traffic=[]
+    tomtom_traffic={"request_time":request_time}
+    tomtom_traf=[]
     for hour in range(97):
         date = parsed_date + timedelta(hours=hour)
         actual_traffic=copy.deepcopy(actual_traf)
@@ -59,12 +77,12 @@ def pre_proc(db_api, db_PreProc, request_time):
         day=dt.strptime(date, '%Y-%m-%d:%H')
         day_of_week = day.strftime('%A')
         actual_traffic["day_of_the_weeek"]=day_of_week
-        tomtom_traffic.append(actual_traffic)
+        tomtom_traf.append(actual_traffic)
 
     with open( "./config/historical_tomtom.json", "r") as f:
         historical_tomtom=json.load(f)
         
-        for i, row in enumerate(tomtom_traffic):
+        for i, row in enumerate(tomtom_traf):
             if i==0:
                 row["actual_traffic"]=traffic_level
             else:
@@ -78,7 +96,9 @@ def pre_proc(db_api, db_PreProc, request_time):
                     hour=row["datetime"][l-2:]
                     act_traf= historical_tomtom["festivo"][hour]
                     row["actual_traffic"] = act_traf
+    tomtom_traffic["forecasts"]=tomtom_traf
     
+<<<<<<< Updated upstream
     #print(tomtom_traffic)
                 
             
@@ -86,6 +106,10 @@ def pre_proc(db_api, db_PreProc, request_time):
 
     # tomtom_collection= db_PreProc["tomtom"]
     # tomtom_collection.insert_one(tomtom_traffic)
+=======
+    tomtom_collection= db_PreProc["tomtom"]
+    tomtom_collection.insert_one(tomtom_traffic)
+>>>>>>> Stashed changes
     
 
     # #air quality index ---------------------------------
