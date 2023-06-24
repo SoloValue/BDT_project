@@ -10,11 +10,17 @@ def pre_proc(db_api, db_PreProc, request_time):
     # weather ---------------------------------------
 
     actual_hour= dt.strptime(request_time, '%Y-%m-%dT%H:%M:%S.%f')
-    bottom_limit= actual_hour.strftime('%Y-%m-%d:%H')
+    bottom_limit_str= actual_hour.strftime('%Y-%m-%d:%H')
 
-    parsed_datetime = dt.strptime(bottom_limit, '%Y-%m-%d:%H')
+    parsed_datetime = dt.strptime(bottom_limit_str, '%Y-%m-%d:%H')
     future_datetime = parsed_datetime + timedelta(hours=96)
-    top_limit = future_datetime.strptime(future_datetimes, '%Y-%m-%d:%H')
+    top_limit_str = future_datetime.strftime('%Y-%m-%d:%H')
+
+    top_limit = dt.strptime(top_limit_str, '%Y-%m-%d:%H')
+    bottom_limit = dt.strptime(bottom_limit_str, '%Y-%m-%d:%H')      
+
+    # datetime_obj = dt.strptime(request_time, '%Y-%m-%dT%H:%M:%S.%f')
+    # datetime_request_time=datetime_obj.strftime('%Y-%m-%d:%H')
    
 
     weather_collection = db_api["weather"]
@@ -22,7 +28,7 @@ def pre_proc(db_api, db_PreProc, request_time):
         "request_time": request_time
         })
     previsione_giorno=weather_json["request_data"]["localita"]["previsione_giorno"]
-
+    
     pp_weather = {}
     days_list = []
     for i,giorno in enumerate(previsione_giorno):
@@ -30,23 +36,30 @@ def pre_proc(db_api, db_PreProc, request_time):
         
         for ora in previsione_oraria:
             days_list.append(dict([("request_time", request_time),
-                            ("datetime", dt.strptime((f"{giorno['data']}:{ora['ora']}"),'%Y-%m-%d:%H')),                                   
+                            # ("datetime_request_time", datetime_request_time),
+                            ("datetime", (f"{giorno['data']}:{ora['ora']}")),      
                             ("precipitazioni",ora['precipitazioni']),
                             ("prob_prec",ora['probabilita_prec']),
                             ("wind",float(ora['vento']['intensita']))]))
     pp_weather["forecast"] = days_list
 
+    for item in pp_weather["forecast"]:
+        dt.strptime(item['datetime'], '%Y-%m-%d:%H')
+   
     pp_process_weather={"request_time": request_time}
     forecasts=[]
     for el in pp_weather["forecast"]:
-        if el["datetime"]>=bottom_limit and el["datetime"]<=top_limit:
+        el['datetime']=dt.strptime(el['datetime'], '%Y-%m-%d:%H')
+        if top_limit>=el["datetime"]>=bottom_limit:
+            el['datetime']=el['datetime'].strftime('%Y-%m-%d:%H')
             forecasts.append(el)
     pp_process_weather['forecasts']=forecasts
+
     print(pp_process_weather)
 
     wp_collection = db_PreProc["weather"]
     wp_collection.insert_one(pp_process_weather)
-    
+
 
     # # traffic-----------------------------------------
 
@@ -98,18 +111,8 @@ def pre_proc(db_api, db_PreProc, request_time):
                     row["actual_traffic"] = act_traf
     tomtom_traffic["forecasts"]=tomtom_traf
     
-<<<<<<< Updated upstream
-    #print(tomtom_traffic)
-                
-            
-
-
-    # tomtom_collection= db_PreProc["tomtom"]
-    # tomtom_collection.insert_one(tomtom_traffic)
-=======
     tomtom_collection= db_PreProc["tomtom"]
     tomtom_collection.insert_one(tomtom_traffic)
->>>>>>> Stashed changes
     
 
     # #air quality index ---------------------------------

@@ -23,10 +23,11 @@ sc = spark.sparkContext.setLogLevel("WARN")
 weather_schema = StructType() \
     .add("_id", StringType()) \
     .add("request_time", StringType())\
-    .add("forecast", 
+    .add("forecasts", 
             ArrayType(
                 StructType() \
                 .add("request_time", StringType())\
+                #.add("datetime_request_time", StringType())\
                 .add("datetime", StringType()) \
                 .add("precipitazioni", DoubleType()) \
                 .add("prob_prec", IntegerType()) \
@@ -71,6 +72,7 @@ df_weather= spark.read.format("mongodb") \
 df_weather = df_weather.select(explode("forecasts").alias("forecasts"))
 
 df_weather=df_weather.filter(df_weather["forecasts.request_time"]==request_time)
+# df_weather=df_weather.filter(df_weather["forecasts."])
 
 df_weather_with_date = df_weather.withColumn("request_time", col("forecasts.request_time"))\
     .withColumn("datetime", col('forecasts.datetime'))\
@@ -137,11 +139,11 @@ df_air_with_day= df_air_with_date.withColumn('day_of_week', date_format('date', 
 df_air_with_day = df_air_with_day.drop("forecasts")
 df_air_with_day.show()
 
-f_of_x = 50 #AQI of this moment
-f_list = [f_of_x]
-for value in rdd_weather.collect():
-    f_of_x = max(1, f_of_x + value[0])
-    f_list.append(f_of_x)
-print(f_list)
+# f_of_x = 50 #AQI of this moment
+# f_list = [f_of_x]
+# for value in rdd_weather.collect():
+#     f_of_x = max(1, f_of_x + value[0])
+#     f_list.append(f_of_x)
+# print(f_list)
 
 spark.stop()

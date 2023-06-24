@@ -1,8 +1,8 @@
 project:
-  environment: "docker" #local or docker. Where are you running the manager files
+  environment: "local" #local or docker. Where are you running the manager files
 
 mongodb:
-  environment: "docker" #where are you connecting to the mongo
+  environment: "local" #where are you connecting to the mongo
   username: "root"
   password: "psw"
   local:
