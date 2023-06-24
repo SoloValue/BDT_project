@@ -1,13 +1,13 @@
 {% extends 'base.html' %}
 
 {% block head %}
-<title>Air Quality Prediction - Trento</title>
+<title>AQP - {{location | safe}}</title>
 {% endblock %}
 
 {% block body %}
 <div class="centered-div">
   <table>
-    <caption>Air Quality of Trento:</caption>
+    <caption>Air Quality of {{location | safe}}:</caption>
     {{table | safe}}
   </table>
 </div>

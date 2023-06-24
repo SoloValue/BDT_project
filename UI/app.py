@@ -4,6 +4,7 @@ from kafka import KafkaConsumer, KafkaProducer, errors
 from serializers import serializer, deserializer
 import yaml
 from datetime import datetime
+import csv
 
 ## load config
 CONFIG_PATH = "./config/config.yaml"
@@ -21,11 +22,19 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-  return render_template('index.html')
-
-@app.route('/loading')
-def loading():
-  return render_template('loading.html')
+  buttons = ""
+  with open('./config/cities.csv') as csv_f:
+    csv_r = csv.reader(csv_f, delimiter=',')
+    line_count = 0
+    for row in csv_r:
+      if line_count == 0:
+        pass
+      else:
+        buttons += "<input "
+        buttons += f'class="city-btn" type="submit" value="{row[0]}" formaction="/data/{row[2]}"'
+        buttons += ">"
+      line_count += 1
+  return render_template('index.html', buttons = buttons)
 
 @app.route('/data/<int:id_location>', methods=['GET', 'POST'])
 def data(id_location):
@@ -72,8 +81,20 @@ def data(id_location):
         table += f"<td>{now.hour+i}</td><td style='background-color: {color_pred} ;'>{pred}</td><td>0.1</td>"
 
         table += "</tr>"
+        
+      location = "Aula 16"
+      with open('./config/cities.csv') as csv_f:
+        csv_r = csv.reader(csv_f, delimiter=',')
+        line_count = 0
+        for row in csv_r:
+          if line_count == 0:
+            pass
+          else:
+            if row[2] == str(id_location):
+              location = row[0]
+          line_count += 1
 
-      return render_template('data.html', table = table)
+      return render_template('data.html', table = table, location=location)
   else:
     redirect('/')
 

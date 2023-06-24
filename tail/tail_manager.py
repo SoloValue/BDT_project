@@ -79,7 +79,7 @@ if __name__ == "__main__":
     ## ML project 2 #TODO
     predictions = []
     for i in range(97):
-      predictions.append(180-i)
+      predictions.append(120-i)
     print(f"Predictions: {predictions}")
 
     ## Saving predictions
@@ -105,4 +105,4 @@ if __name__ == "__main__":
         "predictions": predictions
       })
     producer.flush()
-    print(f"\tOutput sent to {TOPIC_PRODUCER}.")
+    print(f"\Predictions sent to topic: {TOPIC_PRODUCER}.")

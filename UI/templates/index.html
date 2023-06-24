@@ -13,8 +13,7 @@
 </div>
 <div class="centered-div">
   <form method="POST">
-    <input class="city-btn" type="submit" value="Trento" formaction="/data/1">
-    <input class="city-btn" type="submit" value="Perugia" formaction="/data/2">
+    {{ buttons | safe }}
   </form>
 </div>
 {% endblock %}

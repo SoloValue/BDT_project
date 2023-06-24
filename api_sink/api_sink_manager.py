@@ -2,13 +2,11 @@
 from kafka import KafkaConsumer, KafkaProducer, errors
 import yaml
 import pymongo
-from datetime import datetime
 import time
-import pandas as pd 
 
 #CLASSESS----------------------------
 from serializers import serializer, deserializer
-from api_requests import get_all_requests, insert_docs
+from api_requests import get_all_requests, insert_docs, get_request_input
 
 #MAIN--------------------------------
 if __name__ == "__main__":
@@ -54,17 +52,11 @@ if __name__ == "__main__":
     request_time = message.value["request_time"]
 
     ##retrieve data from API
-    def get_request_input(localita): #TODO remove pandas
-      data_cities=pd.read_csv('./config/cities.csv')
-      id_localita=data_cities.loc[data_cities['localita'] == localita, "id_localita"]
-      in_lat=data_cities.loc[data_cities['localita'] == localita, "lat"]
-      in_long=data_cities.loc[data_cities['localita'] == localita, "long"]
-      return id_localita, in_lat, in_long
-
-    id_localita, in_lat, in_long = get_request_input("Trento")
-    print({'id_loc': id_localita.values[0], 'lat': in_lat.values[0], 'long': in_long.values[0]})
+    id_location = message.value["id_location"]
+    location, in_lat, in_long = get_request_input(id_location)
+    #print({'id_loc': id_localita, 'lat': in_lat, 'long': in_long})
     
-    traffic_data, air_data, weather_data = get_all_requests(in_lat, in_long, id_localita, 4, request_time)
+    traffic_data, air_data, weather_data = get_all_requests(in_lat, in_long, id_location, 4, request_time)
     print("\tData from API recived")
 
     ##save it on mongodb

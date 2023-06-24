@@ -63,7 +63,8 @@ if __name__ == "__main__":
     current_time = datetime.now().isoformat()
     producer.send(TOPIC_PRODUCER, value={
         "request_time": current_time,
-        "status": "START"
+        "status": "START",
+        "id_location": message.value["id_location"]
       })
     producer.flush()
 

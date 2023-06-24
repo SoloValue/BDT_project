@@ -4,6 +4,23 @@ import requests
 import pymongo 
 import datetime
 import yaml
+import csv
+
+# CITY DATA ----------------------------------------------
+def get_request_input(id_location):    
+      with open('./config/cities.csv') as csv_f:
+        csv_r = csv.reader(csv_f, delimiter=',')
+        line_count = 0
+        for row in csv_r:
+          if line_count == 0:
+            pass
+          else:
+            if row[2] == str(id_location):
+              location = row[0]
+              in_lat = row[3]
+              in_long = row[4]
+            line_count += 1
+        return location, in_lat, in_long
 
 # REAL TIME REQUESTS -------------------------------------
 def rt_tomtom_request(lat, long_, time):
