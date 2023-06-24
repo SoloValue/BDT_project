@@ -51,8 +51,9 @@ The project aims to predict the Air Quality of a city for the next 96 hours. It 
 
 ### How to run
 
-The project comes with 2 docker-compose files that manage everything but the __UI__. To do so you first need to check the file `config/config.yaml` for two values and make sure they are set to _docker_ when creating the images for Docker.
-!ADD IMAGE!
+The project comes with 2 docker-compose files that manage everything but the __UI__. To do so, you first need to check the file `config/config.yaml` for two values and make sure they are set to _docker_ when creating the images for Docker (they should be already on _docker_, but if we change them by mistake than the managers will not work).
+
+![config file](https://github.com/SoloValue/BDT_project/assets/119301751/bfd93a71-8ed2-4679-9888-64d27f0dfa09)
 
 Then you can run the docker files:
 ```bash
