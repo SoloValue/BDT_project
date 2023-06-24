@@ -49,18 +49,22 @@ if __name__ == "__main__":
       message.offset,
       message.value))
     
+    if message.value["status"] != "START":
+      pass
+    request_time = message.value["request_time"]
+
     ##retrieve data from API
-    def get_request_input(localita):
+    def get_request_input(localita): #TODO remove pandas
       data_cities=pd.read_csv('./config/cities.csv')
       id_localita=data_cities.loc[data_cities['localita'] == localita, "id_localita"]
       in_lat=data_cities.loc[data_cities['localita'] == localita, "lat"]
       in_long=data_cities.loc[data_cities['localita'] == localita, "long"]
       return id_localita, in_lat, in_long
 
-    id_localita, in_lat, in_long=get_request_input("Trento")
+    id_localita, in_lat, in_long = get_request_input("Trento")
     print({'id_loc': id_localita.values[0], 'lat': in_lat.values[0], 'long': in_long.values[0]})
     
-    traffic_data, air_data, weather_data, request_time = get_all_requests(in_lat, in_long, id_localita, 4)
+    traffic_data, air_data, weather_data = get_all_requests(in_lat, in_long, id_localita, 4, request_time)
     print("\tData from API recived")
 
     ##save it on mongodb
@@ -90,15 +94,9 @@ if __name__ == "__main__":
                              f'{BROKER_ADD_LIST[2]}:{BROKER_PORT_LIST[2]}'],
         value_serializer = serializer)
     
-    current_time = datetime.now()
     producer.send(TOPIC_PRODUCER, value={
-      "date": f'{current_time.year}.{current_time.month}.{current_time.day}:{current_time.hour}.{current_time.minute}.{current_time.second}',
-      "status": "GREAT",
-      "traffic_id": str(traffic_id),
-      "air_id": str(air_id),
-      "weather_id": str(weather_id),
       "request_time": request_time,
+      "status": "GREAT"
     })
     producer.flush()
     print(f"\t...message sent to: {BROKER_ADD_LIST[0]}:{BROKER_PORT_LIST[0]}-{TOPIC_PRODUCER}")
-

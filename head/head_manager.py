@@ -54,15 +54,15 @@ if __name__ == "__main__":
     ## send start message (producer)
     producer = KafkaProducer(
         bootstrap_servers=[f'{BROKER_ADD_LIST[0]}:{BROKER_PORT_LIST[0]}',
-                            f'{BROKER_ADD_LIST[1]}:{BROKER_PORT_LIST[1]}',
-                            f'{BROKER_ADD_LIST[2]}:{BROKER_PORT_LIST[2]}'],
+                           f'{BROKER_ADD_LIST[1]}:{BROKER_PORT_LIST[1]}',
+                           f'{BROKER_ADD_LIST[2]}:{BROKER_PORT_LIST[2]}'],
         value_serializer = serializer
     )
     #time.sleep(1)
     print("\tSending start message...")
-    current_time = datetime.now()
+    current_time = datetime.now().isoformat()
     producer.send(TOPIC_PRODUCER, value={
-        "date": f'{current_time.year}.{current_time.month}.{current_time.day}:{current_time.hour}.{current_time.minute}.{current_time.second}',
+        "request_time": current_time,
         "status": "START"
       })
     producer.flush()
@@ -70,8 +70,8 @@ if __name__ == "__main__":
     ##wait for confirm message (consumer)
     consumer_2 = KafkaConsumer(
       bootstrap_servers=[f'{BROKER_ADD_LIST[0]}:{BROKER_PORT_LIST[0]}',
-                        f'{BROKER_ADD_LIST[1]}:{BROKER_PORT_LIST[1]}',
-                        f'{BROKER_ADD_LIST[2]}:{BROKER_PORT_LIST[2]}'],
+                         f'{BROKER_ADD_LIST[1]}:{BROKER_PORT_LIST[1]}',
+                         f'{BROKER_ADD_LIST[2]}:{BROKER_PORT_LIST[2]}'],
       value_deserializer = deserializer,
       auto_offset_reset='latest'
     )

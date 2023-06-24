@@ -78,8 +78,8 @@ if __name__ == "__main__":
 
     ## ML project 2 #TODO
     predictions = []
-    for i in range(96):
-      predictions.append(96-i)
+    for i in range(97):
+      predictions.append(180-i)
     print(f"Predictions: {predictions}")
 
     ## Saving predictions
