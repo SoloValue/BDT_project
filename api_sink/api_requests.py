@@ -106,20 +106,36 @@ def insert_docs(tomtom_data, air_data, weather_data, mongodb):
 
 # REQUEST PARAMETERS (just for now here)------------------
 if __name__ == "__main__":
-
-    # CONNECT TO MONGO ATLAS DATABASE 
+    # config ------------------------------------
     CONFIG_PATH = "./config/config.yaml"
     with open(CONFIG_PATH, "r") as f:
         config = yaml.safe_load(f)
-    CONNECTION_STRING = config["mongodb"]["atlas"]["connection_string"]
-    myclient = pymongo.MongoClient(CONNECTION_STRING)
-    mydb = myclient["mydatabase"]
+
+    MONGO_ENV = config["mongodb"]["environment"]
+    if MONGO_ENV == "atlas":
+        CONNECTION_STRING = config["mongodb"][MONGO_ENV]["connection_string"]
+        mongo_client = pymongo.MongoClient(CONNECTION_STRING)
+    else:
+        MONGO_ADD = CONNECTION_STRING = config["mongodb"][MONGO_ENV]["address"]
+        MONGO_PORT = CONNECTION_STRING = config["mongodb"][MONGO_ENV]["port"]
+        username = config["mongodb"]["username"]
+        username = config["mongodb"]["password"]
+        mongo_client = pymongo.MongoClient(f'{MONGO_ADD}:{MONGO_PORT}',
+                                    username = "root",
+                                    password = "psw")
+    db_api=mongo_client["mydatabase"]
 
     in_lat = 46.065435
     in_long = 11.113922
     trento_id = 7428
+<<<<<<< Updated upstream
     
     request_time = datetime.now().isoformat()
     tomtom_data, air_data, weather_data = get_all_requests(in_lat, in_long, trento_id, request_time, 4)
     traffic_id, air_id, weather_id = insert_docs(tomtom_data, air_data, weather_data, mydb)
+=======
+
+    tomtom_data, air_data, weather_data, request_time = get_all_requests(in_lat, in_long, trento_id, 4)
+    traffic_id, air_id, weather_id = insert_docs(tomtom_data, air_data, weather_data,db_api)
+>>>>>>> Stashed changes
     

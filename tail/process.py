@@ -7,8 +7,9 @@ from datetime import datetime
 from pyspark.sql.functions import date_format, to_date, hour, substring
 
 
-connection_string="mongodb://root:psw@localhost:27017/"    # old atlas connection 
+connection_string="mongodb://root:psw@localhost:27017/"    
 betas=[1.0, -0.1,-0.5]
+request_time="2023-06-24T10:12:54.608381"
 
 spark = SparkSession.builder.master("local").appName("MongoDBSparkConnector") \
     .config("spark.driver.memory", "15g") \
@@ -21,25 +22,31 @@ sc = spark.sparkContext.setLogLevel("WARN")
 
 weather_schema = StructType() \
     .add("_id", StringType()) \
+    .add("request_time", StringType())\
     .add("forecast", 
             ArrayType(
                 StructType() \
+                .add("request_time", StringType())\
                 .add("datetime", StringType()) \
                 .add("precipitazioni", DoubleType()) \
                 .add("prob_prec", IntegerType()) \
                 .add("wind", DoubleType())   
          ))
     
-tomtom_schema=StructType()\
-    .add("_id", StringType())\
-    .add("datetime", StringType())\
-    .add("actual_traffic",IntegerType())
+tomtom_schema=ArrayType(
+                StructType()\
+        .add("_id", StringType())\
+        .add("request_time", StringType())\
+        .add("datetime", StringType())\
+        .add("actual_traffic",IntegerType()))
 
 air_schema=StructType()\
     .add("_id", StringType())\
+    .add("request_time", StringType())\
     .add("forecasts",
          ArrayType(
              StructType()\
+             .add("request_time", StringType())\
              .add("datetime", StringType())
              .add("aqi", IntegerType())
          ))
@@ -49,6 +56,7 @@ air_schema=StructType()\
 # read and create spark dataframe
 
 #WEATHER--------------------------------
+
 df_weather= spark.read.format("mongodb") \
     .option("uri", connection_string) \
     .option("database", "preprocess_data") \
@@ -58,7 +66,10 @@ df_weather= spark.read.format("mongodb") \
 
 df_weather = df_weather.select(explode("forecast").alias("forecast"))
 
-df_weather_with_date = df_weather.withColumn("datetime", col('forecast.datetime'))\
+df_weather=df_weather.filter(df_weather["forecast.request_time"]==request_time)
+
+df_weather_with_date = df_weather.withColumn("request_time", col("forecast.request_time"))\
+    .withColumn("datetime", col('forecast.datetime'))\
     .withColumn('date', substring('datetime', 1, 10))\
     .withColumn('hour', substring('datetime', 12, 2))\
     .withColumn("precipitazioni", col("forecast.precipitazioni")) \
@@ -82,6 +93,8 @@ df_tomtom= spark.read.format("mongodb") \
     .schema(tomtom_schema) \
     .load()
 
+df_tomtom=df_tomtom.filter(df_tomtom["request_time"]==request_time)
+
 df_tomtom_with_date= df_tomtom.withColumn("datetime", col('datetime')) \
     .withColumn('date', substring('datetime', 1, 10))\
     .withColumn('hour', substring('datetime', 12, 2))\
@@ -102,18 +115,19 @@ df_air= spark.read.format("mongodb") \
 
 df_air = df_air.select(explode("forecasts").alias("forecasts"))
 
-df_air_with_date= df_air.withColumn("datetime", col('forecasts.datetime')) \
+df_air=df_air.filter(df_air["forecasts.request_time"]==request_time)
+
+df_air_with_date= df_air.withColumn("request_time", col("forecasts.request_time"))\
+    .withColumn("datetime", col('forecasts.datetime')) \
     .withColumn('date', substring('datetime', 1, 10))\
     .withColumn('hour', substring('datetime', 12, 2))\
-    .withColumn('aqi', col("forecasts.aqi")) \
+    .withColumn('aqi', col("forecasts.aqi")) 
     
-   
+    
 df_air_with_day= df_air_with_date.withColumn('day_of_week', date_format('date', 'EEEE'))
+
 df_air_with_day = df_air_with_day.drop("forecasts")
 df_air_with_day.show()
-
-
-
 
 f_of_x = 50 #AQI of this moment
 f_list = [f_of_x]
