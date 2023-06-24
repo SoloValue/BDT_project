@@ -27,12 +27,6 @@ The project aims to predict the Air Quality of a city for the next 96 hours. It 
 
 ---
 
-### Kafka Network
-
-![How does it work (3)](https://github.com/SoloValue/BDT_project/assets/119301751/6b31c4d9-d13d-4d33-aae0-6cab4e33041a)
-
----
-
 ### Project Files Structure
 
 + `head`, `api_sink`, `tail`: folders containing all the files used by the relative component. Inside each one we can find:
@@ -45,6 +39,43 @@ The project aims to predict the Air Quality of a city for the next 96 hours. It 
   + Kafka + Zookeeper (3 brokers)
   + MongoDB + Mongo-express
   + Apache Spark
-+ `docker-compose-managers.yml`: file to run using docker-compose to start all the managers (__head__, __api_sink__, and __tail__).
++ `docker-compose-managers.yml`: file to run using Docker-compose to start all the managers (__head__, __api_sink__, and __tail__).
 
 ---
+
+### Kafka Network
+
+![How does it work (3)](https://github.com/SoloValue/BDT_project/assets/119301751/6b31c4d9-d13d-4d33-aae0-6cab4e33041a)
+
+---
+
+### How to run
+
+The project comes with 2 docker-compose files that manage everything but the __UI__. To do so you first need to check the file `config/config.yaml` for two values and make sure they are set to _docker_ when creating the images for Docker.
+!ADD IMAGE!
+
+Then you can run the docker files:
+```bash
+docker-compose -f docker-compose-managers.yml up
+```
+
+```bash
+docker-compose -f docker-compose-services.yml up
+```
+
+Once all 3 managers show the message "Waiting for message" !TODO!
+
+And finally you can start the __UI__ by running:
+```bash
+python3 UI/app.py
+```
+
+Connecting to the address shown on the console (default is localhost:5000) you will be able to access the user interface and interact with our project.
+
+---
+
+### Dependencies
+
+For this project we worked using:
++ Docker v24.0.2
++ Docker Compose v2.18.1
