@@ -89,30 +89,49 @@ if __name__ == "__main__":
 
     ## ML project 2 #TODO
 
-    rdd_weather = spark.sparkContext.parallelize([pp_weather["forecasts"]])
-    rdd_traffic = spark.sparkContext.parallelize([pp_traffic["forecasts"]])
+    rdd_weather = spark.sparkContext.parallelize([f for f in pp_weather["forecasts"]])
+    rdd_traffic = spark.sparkContext.parallelize([f for f in pp_traffic["forecasts"]])
+    #rdd_traffic = spark.sparkContext.parallelize([f for f in pp_traffic["forecasts"]])
     rdd_air = spark.sparkContext.parallelize([pp_air])
 
-    rdd1_formatted = rdd_weather.map(lambda x: (x[1], x))
-    rdd2_formatted = rdd_traffic.map(lambda x: (x[1], x))
-
-    #printRDD(rdd_weather)   
+    rdd1_formatted = rdd_weather.map(lambda x: (x[0], x))
+    rdd2_formatted = rdd_traffic.map(lambda x: (x[0], x))   
     
     rdd_joined = rdd_weather.join(rdd2_formatted)
-    rdd_joined = rdd_joined.map(lambda x: x[1])
+    #rdd_joined = rdd_joined.map(lambda x: x[1])
 
-    rdd_joined.collect()
+    #df_joined.collect()
 
     ## Apply the air quality formula to each record: The map transformation applies a given function to each 
     ## element of the RDD and returns a new RDD with the transformed results.
-    #output_rdd = combined_rdd.map(lambda data_point: aqi_formula(data_point['hour'], data_point['traffic'], data_point['computed'], data_point['wind']))
-   
+    output_rdd = rdd_joined.map(lambda data_point: aqi_formula(data_point['traffic'],
+                                  data_point['precipitazioni'], 
+                                  data_point['prob_prec'], 
+                                  data_point['wind']))   
+
+    # packing up output
+    # Convert RDD to DataFrame
+    #schema = StructType([StructField("prediction", DoubleType(), True)])
+    #output_df = spark.createDataFrame(output_rdd, schema)
+    #predictions = output_df.select("prediction").rdd.flatMap(lambda x: [x]).collect()
+
+    # PLEASE
+    index_rdd = 0
+    def dict_to_string():
+      index_rdd = index_rdd + 1
+      return index_rdd
+
+    output_rdd = output_rdd.map(lambda x: (dict_to_string(x), x))
+    predictions = output_rdd.collect()
+
+    # Convert DataFrame to a list
+    #predictions = output_rdd.flatMap(lambda x: x)
 
 
-    predictions = []
+    # predictions = []
     exp_traffic = []
     for i in range(97):
-      predictions.append(120-i)
+    #   predictions.append(120-i)
       exp_traffic.append(i/37)
     print(f"Predictions: {predictions}")
 
