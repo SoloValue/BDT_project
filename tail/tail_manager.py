@@ -3,6 +3,7 @@ from kafka import KafkaConsumer, KafkaProducer, errors
 import pymongo
 import yaml
 import time
+import json
 from pyspark.sql import SparkSession
 from pyspark.sql.types import *
 
@@ -87,27 +88,36 @@ if __name__ == "__main__":
     pp_weather, pp_traffic, pp_air = pre_proc(db_api, db_pp, request_time)
     print(f"\tData recovered from: {CONNECTION_STRING}")
 
-    ## ML project 2 #TODO
+    ## CORE COMPUTATIONS (PREDICTIONS)
 
-    rdd_weather = spark.sparkContext.parallelize([f for f in pp_weather["forecasts"]])
-    rdd_traffic = spark.sparkContext.parallelize([f for f in pp_traffic["forecasts"]])
+    rdd_weather = spark.sparkContext.parallelize(pp_weather["forecasts"])
+    rdd_traffic = spark.sparkContext.parallelize(pp_traffic["forecasts"])
     #rdd_traffic = spark.sparkContext.parallelize([f for f in pp_traffic["forecasts"]])
     rdd_air = spark.sparkContext.parallelize([pp_air])
 
-    rdd1_formatted = rdd_weather.map(lambda x: (x[0], x))
+    # join on datetime
+    rdd1_formatted = rdd_weather.map(lambda x: (x[0], x))    
     rdd2_formatted = rdd_traffic.map(lambda x: (x[0], x))   
     
-    rdd_joined = rdd_weather.join(rdd2_formatted)
+    rdd_joined = rdd1_formatted.join(rdd2_formatted)
     #rdd_joined = rdd_joined.map(lambda x: x[1])
 
     #df_joined.collect()
 
     ## Apply the air quality formula to each record: The map transformation applies a given function to each 
     ## element of the RDD and returns a new RDD with the transformed results.
-    output_rdd = rdd_joined.map(lambda data_point: aqi_formula(data_point['traffic'],
-                                  data_point['precipitazioni'], 
-                                  data_point['prob_prec'], 
-                                  data_point['wind']))   
+    # output_rdd = rdd_joined.map(lambda data_point: aqi_formula(data_point['traffic'],
+    #                               data_point['precipitazioni'], 
+    #                               data_point['prob_prec'], 
+    #                               data_point['wind']))   
+
+    output_rdd = rdd_joined.map(lambda data_point: aqi_formula(data_point[0][2],   # traffic
+                                                           data_point[1][1],       # prec
+                                                           data_point[1][2],       # prob_prec
+                                                           data_point[1][3]))      # wind
+
+    
+    predictions = output_rdd.collect()
 
     # packing up output
     # Convert RDD to DataFrame
@@ -116,17 +126,23 @@ if __name__ == "__main__":
     #predictions = output_df.select("prediction").rdd.flatMap(lambda x: [x]).collect()
 
     # PLEASE
-    index_rdd = 0
-    def dict_to_string():
-      index_rdd = index_rdd + 1
-      return index_rdd
+    # index_rdd = 0
+    # def dict_to_string():
+    #   index_rdd = index_rdd + 1
+    #   return index_rdd
 
-    output_rdd = output_rdd.map(lambda x: (dict_to_string(x), x))
-    predictions = output_rdd.collect()
+    # output_rdd = output_rdd.map(lambda x: (dict_to_string(x), x))
+    # predictions = output_rdd.first()
 
     # Convert DataFrame to a list
     #predictions = output_rdd.flatMap(lambda x: x)
 
+    # PLEASE !!
+    # Serialize RDD elements to JSON
+    #predictions = output_rdd.map(lambda x: json.dumps(x))
+
+    # Collect serialized RDD into a list
+    #predictions = output_rdd_serializable.collect()
 
     # predictions = []
     exp_traffic = []
