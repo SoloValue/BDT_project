@@ -3,10 +3,13 @@ from kafka import KafkaConsumer, KafkaProducer, errors
 import pymongo
 import yaml
 import time
+from pyspark.sql import SparkSession
+from pyspark.sql.types import *
 
 #CLASSESS----------------------------
 from serializers import serializer, deserializer
 from preprocess import pre_proc
+from magic_formulatry import aqi_formula
 
 #MAIN--------------------------------
 if __name__ == "__main__":
@@ -39,6 +42,9 @@ if __name__ == "__main__":
       time.sleep(5)
   print(f"\tConnected to {BROKER_ADD_LIST[0]}:{BROKER_PORT_LIST[0]}")
 
+  spark = SparkSession.builder.master("local").appName("MongoDBSparkConnector").getOrCreate()
+  sc = spark.sparkContext.setLogLevel("WARN")
+
   consumer.subscribe(topics=TOPIC_CONSUMER)
   print(f'\tWaiting for message on: {TOPIC_CONSUMER}...')
   for message in consumer:
@@ -53,7 +59,7 @@ if __name__ == "__main__":
 
     print("\tAPI sink compleated. Starting spark...")
 
-    ## mongo connection
+    ## mongo connection and preprocess of data
     MONGO_ENV = config["mongodb"]["environment"]
     if MONGO_ENV == "atlas":
         CONNECTION_STRING = config["mongodb"][MONGO_ENV]["connection_string"]
@@ -71,12 +77,31 @@ if __name__ == "__main__":
     db_api = mongo_client[config["mongodb"]["databases"]["api_raw"]]
     db_pp = mongo_client[config["mongodb"]["databases"]["preprocess_data"]]
     request_time = message.value["request_time"]
-    #weather_data, traffic_data, air_data = pre_proc(db_api, db_pp, request_time)
-    pp_weather = pre_proc(db_api, db_pp, request_time)
-    #print(pp_weather)
+
+    pp_weather, pp_traffic, pp_air = pre_proc(db_api, db_pp, request_time)
     print(f"\tData recovered from: {CONNECTION_STRING}")
 
     ## ML project 2 #TODO
+
+    rdd_weather = spark.sparkContext.parallelize([pp_weather["forecasts"]])
+    rdd_traffic = spark.sparkContext.parallelize([pp_traffic["forecasts"]])
+    rdd_air = spark.sparkContext.parallelize([pp_air])
+
+    ## Combine RDDs based on the hour key
+    combined_rdd = rdd_weather.join(rdd_traffic).filter(lambda x: x[0] == "datetime")
+
+    dataColl=combined_rdd.collect()
+    for row in dataColl:
+      print(row)
+      print("\n")
+
+
+    ## Apply the air quality formula to each record: The map transformation applies a given function to each 
+    ## element of the RDD and returns a new RDD with the transformed results.
+    output_rdd = combined_rdd.map(lambda data_point: aqi_formula(data_point['hour'], data_point['traffic'], data_point['computed'], data_point['wind']))
+   
+
+
     predictions = []
     exp_traffic = []
     for i in range(97):

@@ -8,7 +8,7 @@ def aqi_formula(traffic, computed, wind, betas={'traffic': 1.0, 'prec': -0.1, 'w
         previous_aqi = air_rdd.first()  # Assuming `rdd` is the RDD containing the AQI values
         memo[0] = previous_aqi
         hour += 1 # next hour
-    elif hour < 96:
+    elif hour < 97:
         previous_aqi = memo[hour - 1]      
         aqi = previous_aqi + traffic * betas['traffic'] + computed * betas['prec'] + wind * betas['wind']
         memo[hour] = aqi
