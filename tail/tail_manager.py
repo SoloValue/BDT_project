@@ -74,6 +74,12 @@ if __name__ == "__main__":
                                     username = "root",
                                     password = "psw")
 
+    def printRDD(rdd):
+      coll_rdd = rdd.collect()
+      for row in coll_rdd:
+        print(row)
+        print("\n")
+
     db_api = mongo_client[config["mongodb"]["databases"]["api_raw"]]
     db_pp = mongo_client[config["mongodb"]["databases"]["preprocess_data"]]
     request_time = message.value["request_time"]
@@ -87,18 +93,19 @@ if __name__ == "__main__":
     rdd_traffic = spark.sparkContext.parallelize([pp_traffic["forecasts"]])
     rdd_air = spark.sparkContext.parallelize([pp_air])
 
-    ## Combine RDDs based on the hour key
-    combined_rdd = rdd_weather.join(rdd_traffic).filter(lambda x: x[0] == "datetime")
+    rdd1_formatted = rdd_weather.map(lambda x: (x[1], x))
+    rdd2_formatted = rdd_traffic.map(lambda x: (x[1], x))
 
-    dataColl=combined_rdd.collect()
-    for row in dataColl:
-      print(row)
-      print("\n")
+    #printRDD(rdd_weather)   
+    
+    rdd_joined = rdd_weather.join(rdd2_formatted)
+    rdd_joined = rdd_joined.map(lambda x: x[1])
 
+    rdd_joined.collect()
 
     ## Apply the air quality formula to each record: The map transformation applies a given function to each 
     ## element of the RDD and returns a new RDD with the transformed results.
-    output_rdd = combined_rdd.map(lambda data_point: aqi_formula(data_point['hour'], data_point['traffic'], data_point['computed'], data_point['wind']))
+    #output_rdd = combined_rdd.map(lambda data_point: aqi_formula(data_point['hour'], data_point['traffic'], data_point['computed'], data_point['wind']))
    
 
 
@@ -112,12 +119,12 @@ if __name__ == "__main__":
     ## Saving predictions
     pred_db = mongo_client[config["mongodb"]["databases"]["output"]]
     pred_collection = pred_db["predictions"]
-    pred_collection.insert_one({
+    '''pred_collection.insert_one({
       "request_time": request_time,
       "id_location": message.value["id_location"],
       "predictions": predictions,
       "exp_traffic": exp_traffic
-    })
+    })'''
 
     ## Send output
     print("\tSending output...")
