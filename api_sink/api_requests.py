@@ -126,10 +126,11 @@ if __name__ == "__main__":
                                     password = "psw")
     db_api=mongo_client["mydatabase"]
 
+    request_time = datetime.datetime.now()
     in_lat = 46.065435
     in_long = 11.113922
     trento_id = 7428
 
-    tomtom_data, air_data, weather_data, request_time = get_all_requests(in_lat, in_long, trento_id, 4)
+    tomtom_data, air_data, weather_data = get_all_requests(in_lat, in_long, trento_id, 5, request_time)
     traffic_id, air_id, weather_id = insert_docs(tomtom_data, air_data, weather_data,db_api)
     
