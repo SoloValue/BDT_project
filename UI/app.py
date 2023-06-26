@@ -72,15 +72,17 @@ def data(id_location):
       table = "<thead><th>Date</th><th>AQI</th><th>Expected Traffic</th></thead>"
       for i, pred in enumerate(predictions):
         if pred > 200:
-          color_pred = "rgb(200,20,200)"
+          color_pred = "rgb(222, 74, 135)"
         elif pred > 150:
-          color_pred = "rgb(255, 68, 68)"
+          color_pred = "rgb(239, 89, 76)"
         elif pred > 100:
-          color_pred = "rgb(120, 68, 68)"
+          color_pred = "rgb(229, 137, 61)"
+        elif pred > 70:
+          color_pred = "rgb(231, 215, 68)"
         elif pred > 50:
-          color_pred = "rgb(68, 200, 68)"
+          color_pred = "rgb(101, 207, 15)"
         else:
-          color_pred = "rgb(151, 186, 251)" 
+          color_pred = "rgb(51, 164, 251)" 
         
         
 
