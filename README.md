@@ -78,6 +78,14 @@ Connecting to the address shown on the console (default is localhost:5000) you w
 
 ---
 
+### To Be Implemented Yet
+
++ The formula we are currenty using is very simple and does not predict the air quality. We aim to generate a better model using data from our air API (previous 72 hours of AQI for that location), and past traffic data from the TomTom API, to better predict how the traffic condition will evolve since the request from the UI.
++ Switching the computation on Apache Spark to better manage high quantity of requests.
++ Add error control to our code and check messages to monitor the state of the pipeline, in order to atomize the procedure. Additionaly, if something should go wrong in the middle of the process, the pipeline will be able to recover from the last "checkpoint". 
+
+---
+
 ### Dependencies
 
 For this project we worked using:
