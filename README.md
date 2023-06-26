@@ -23,7 +23,7 @@ The project aims to predict the Air Quality of a city for the next 96 hours. It 
 
 ### The Pipeline
 
-![air-quality pipeline](https://github.com/SoloValue/BDT_project/assets/119301751/fe18eb64-0801-437d-9274-765754dc8f55)
+![air-quality pipeline](https://github.com/SoloValue/BDT_project/assets/119301751/ae1d7b1f-ac50-4d2d-ad9c-33a98181d1b1)
 
 ---
 
@@ -45,7 +45,7 @@ The project aims to predict the Air Quality of a city for the next 96 hours. It 
 
 ### Kafka Network
 
-![How does it work (3)](https://github.com/SoloValue/BDT_project/assets/119301751/6b31c4d9-d13d-4d33-aae0-6cab4e33041a)
+![How does it work (3)](https://github.com/SoloValue/BDT_project/assets/119301751/bd4979bb-e019-44ac-a095-8cdcde078690)
 
 ---
 
@@ -53,7 +53,7 @@ The project aims to predict the Air Quality of a city for the next 96 hours. It 
 
 The project comes with 2 docker-compose files that manage everything but the __UI__. To do so, you first need to check the file `config/config.yaml` for two values (`"environment"`) and make sure they are set to _docker_ when creating the images for Docker (they should be already on _docker_, but if we change them by mistake than the managers will not work).
 
-![config file](https://github.com/SoloValue/BDT_project/assets/119301751/bfd93a71-8ed2-4679-9888-64d27f0dfa09)
+![config file](https://github.com/SoloValue/BDT_project/assets/119301751/944bde97-9683-44a0-b710-e43ef45719d4)
 
 Then you can run the docker files:
 ```bash
@@ -66,8 +66,7 @@ docker-compose -f docker-compose-managers.yml up
 
 You shold now see the following messages on the bash running the `docker-compose-managers.yml` file:
 
-![managers working](https://github.com/SoloValue/BDT_project/assets/119301751/09c96a18-a22b-4a51-bdf2-de5c95aeecb8)
-
+![managers working](https://github.com/SoloValue/BDT_project/assets/119301751/c2883f7a-f6cd-4e82-a119-9f00ec23afcc)
 
 And finally you can start the __UI__ by running:
 ```bash
