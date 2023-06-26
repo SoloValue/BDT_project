@@ -81,12 +81,12 @@ if __name__ == "__main__":
     print(f"\tData recovered from: {CONNECTION_STRING}")
 
     ## CORE COMPUTATION
-    betas={'traffic': 1.0, 'prec': -0.1, 'wind': -0.5}
+    betas={'traffic': 20.0, 'prec': -0.05, 'wind': -0.1}
     predictions = [pp_air["forecasts"][0]["aqi"]]
-    exp_traffic = []
+    exp_traffic = [pp_traffic["forecasts"][0]["actual_traffic"]]
     for i in range(97):
       exp_traffic.append(pp_traffic["forecasts"][i]["actual_traffic"])
-      predictions.append(predictions[i] + pp_traffic["forecasts"][i]["actual_traffic"] * betas['traffic'] + (pp_weather["forecasts"][i]["precipitazioni"] * pp_weather["forecasts"][i]["prob_prec"]) * betas['prec'] + pp_weather["wind"] * betas['wind'])
+      predictions.append(max(1, predictions[i] + pp_traffic["forecasts"][i]["actual_traffic"] * betas['traffic'] + (pp_weather["forecasts"][i]["precipitazioni"] * pp_weather["forecasts"][i]["prob_prec"]) * betas['prec'] + pp_weather["forecasts"][i]["wind"] * betas['wind']))
     
     #predictions = output_rdd.collect() #COLLECT does not work
     print(f"Predictions: {predictions}")

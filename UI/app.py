@@ -71,16 +71,22 @@ def data(id_location):
 
       table = "<thead><th>Date</th><th>AQI</th><th>Expected Traffic</th></thead>"
       for i, pred in enumerate(predictions):
-        if pred <= 50:
-          color_pred = "rgb(151, 186, 251)" 
-        elif pred > 100:
+        if pred > 200:
+          color_pred = "rgb(200,20,200)"
+        elif pred > 150:
           color_pred = "rgb(255, 68, 68)"
-        else:
+        elif pred > 100:
+          color_pred = "rgb(120, 68, 68)"
+        elif pred > 50:
           color_pred = "rgb(68, 200, 68)"
+        else:
+          color_pred = "rgb(151, 186, 251)" 
+        
+        
 
         table += "<tr>"
         table += f"<td>{(request_time.hour+i)%24}.00 {request_time.day+((request_time.hour+i)//24)}/{request_time.month}/{request_time.year}</td>"
-        table += f"<td style='background-color: {color_pred} ;'>{pred}</td>"
+        table += f"<td style='background-color: {color_pred} ;'>{int(pred)}</td>"
         table += f"<td>{exp_traffic[i]}</td>"
         table += "</tr>"
         
