@@ -4,6 +4,7 @@ from datetime import datetime as dt
 from datetime import timedelta
 import copy
 import json
+import os
 
 def pre_proc(db_api, db_PreProc, request_time):
     # weather ---------------------------------------
@@ -85,7 +86,10 @@ def pre_proc(db_api, db_PreProc, request_time):
         actual_traffic["day_of_the_weeek"]=day_of_week
         tomtom_traf.append(actual_traffic)
 
-    with open( "./config/historical_tomtom.json", "r") as f:
+    traf_path = "./config/historical_tomtom.json"
+    if not os.path.exists(traf_path):
+        traf_path = "./app/config/historical_tomtom.json"
+    with open(traf_path , "r") as f:
         historical_tomtom=json.load(f)
         
         for i, row in enumerate(tomtom_traf):
@@ -128,9 +132,6 @@ def pre_proc(db_api, db_PreProc, request_time):
     air_collection.insert_one(aqi_forecasts)
 
     return pp_process_weather, tomtom_traffic, aqi_forecasts
-
-
-
 
 
 

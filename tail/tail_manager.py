@@ -6,20 +6,24 @@ import time
 import json
 from pyspark.sql import SparkSession
 from pyspark.sql.types import *
+import os
+import logging
 
 #CLASSESS----------------------------
 from serializers import serializer, deserializer
 from preprocess import pre_proc
-from magic_formulatry import aqi_formula
+from magic_formula import aqi_formula
 
 #MAIN--------------------------------
 if __name__ == "__main__":
   ##load config
   CONFIG_PATH = "./config/config.yaml"
+  if not os.path.exists(CONFIG_PATH):
+    CONFIG_PATH = "./app/config/config.yaml"
   with open(CONFIG_PATH, "r") as f:
     config = yaml.safe_load(f)
     print(f"\tConfiguration file loaded from: {CONFIG_PATH}")
-    PROJECT_ENV = config["project"]["environment"]
+    PROJECT_ENV = config["project"]["environment"]    
 
   ## wait for message (consumer)
   BROKER_ADD_LIST = [config["kafka"][PROJECT_ENV][f"broker-{i+1}"]["address"] for i in range(3)]
@@ -45,6 +49,9 @@ if __name__ == "__main__":
 
   spark = SparkSession.builder.master("local").appName("MongoDBSparkConnector").getOrCreate()
   sc = spark.sparkContext.setLogLevel("WARN")
+  logger = logging.getLogger('py4j')
+  logger.setLevel(logging.ERROR)
+  print("\tSpark on.")
 
   consumer.subscribe(topics=TOPIC_CONSUMER)
   print(f'\tWaiting for message on: {TOPIC_CONSUMER}...')
@@ -75,11 +82,6 @@ if __name__ == "__main__":
                                     username = "root",
                                     password = "psw")
 
-    def printRDD(rdd):
-      coll_rdd = rdd.collect()
-      for row in coll_rdd:
-        print(row)
-        print("\n")
 
     db_api = mongo_client[config["mongodb"]["databases"]["api_raw"]]
     db_pp = mongo_client[config["mongodb"]["databases"]["preprocess_data"]]
@@ -88,11 +90,17 @@ if __name__ == "__main__":
     pp_weather, pp_traffic, pp_air = pre_proc(db_api, db_pp, request_time)
     print(f"\tData recovered from: {CONNECTION_STRING}")
 
-    ## CORE COMPUTATIONS (PREDICTIONS)
+    ## CORE COMPUTATION (no Spark)
+    betas={'traffic': 1.0, 'prec': -0.1, 'wind': -0.5}
+    predictions = [pp_air["forecasts"][0]["aqi"]]
+    exp_traffic = []
+    for i in range(97):
+      exp_traffic.append(pp_traffic["forecasts"][i]["actual_traffic"])
+      predictions.append(predictions[i] + pp_traffic["forecasts"][i]["actual_traffic"] * betas['traffic'] + (pp_weather["forecasts"][i]["precipitazioni"] * pp_weather["forecasts"][i]["prob_prec"]) * betas['prec'] + pp_weather["wind"] * betas['wind'])
 
+    ## CORE COMPUTATIONS (with Spark)
     rdd_weather = spark.sparkContext.parallelize(pp_weather["forecasts"])
     rdd_traffic = spark.sparkContext.parallelize(pp_traffic["forecasts"])
-    #rdd_traffic = spark.sparkContext.parallelize([f for f in pp_traffic["forecasts"]])
     rdd_air = spark.sparkContext.parallelize([pp_air])
 
     # join on datetime
@@ -100,66 +108,24 @@ if __name__ == "__main__":
     rdd2_formatted = rdd_traffic.map(lambda x: (x[0], x))   
     
     rdd_joined = rdd1_formatted.join(rdd2_formatted)
-    #rdd_joined = rdd_joined.map(lambda x: x[1])
-
-    #df_joined.collect()
-
-    ## Apply the air quality formula to each record: The map transformation applies a given function to each 
-    ## element of the RDD and returns a new RDD with the transformed results.
-    # output_rdd = rdd_joined.map(lambda data_point: aqi_formula(data_point['traffic'],
-    #                               data_point['precipitazioni'], 
-    #                               data_point['prob_prec'], 
-    #                               data_point['wind']))   
 
     output_rdd = rdd_joined.map(lambda data_point: aqi_formula(data_point[0][2],   # traffic
                                                            data_point[1][1],       # prec
                                                            data_point[1][2],       # prob_prec
                                                            data_point[1][3]))      # wind
 
-    
-    predictions = output_rdd.collect()
-
-    # packing up output
-    # Convert RDD to DataFrame
-    #schema = StructType([StructField("prediction", DoubleType(), True)])
-    #output_df = spark.createDataFrame(output_rdd, schema)
-    #predictions = output_df.select("prediction").rdd.flatMap(lambda x: [x]).collect()
-
-    # PLEASE
-    # index_rdd = 0
-    # def dict_to_string():
-    #   index_rdd = index_rdd + 1
-    #   return index_rdd
-
-    # output_rdd = output_rdd.map(lambda x: (dict_to_string(x), x))
-    # predictions = output_rdd.first()
-
-    # Convert DataFrame to a list
-    #predictions = output_rdd.flatMap(lambda x: x)
-
-    # PLEASE !!
-    # Serialize RDD elements to JSON
-    #predictions = output_rdd.map(lambda x: json.dumps(x))
-
-    # Collect serialized RDD into a list
-    #predictions = output_rdd_serializable.collect()
-
-    # predictions = []
-    exp_traffic = []
-    for i in range(97):
-    #   predictions.append(120-i)
-      exp_traffic.append(i/37)
+    #predictions = output_rdd.collect() #COLLECT does not work
     print(f"Predictions: {predictions}")
 
     ## Saving predictions
     pred_db = mongo_client[config["mongodb"]["databases"]["output"]]
     pred_collection = pred_db["predictions"]
-    '''pred_collection.insert_one({
+    pred_collection.insert_one({
       "request_time": request_time,
       "id_location": message.value["id_location"],
       "predictions": predictions,
       "exp_traffic": exp_traffic
-    })'''
+    })
 
     ## Send output
     print("\tSending output...")
