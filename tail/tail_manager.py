@@ -3,16 +3,12 @@ from kafka import KafkaConsumer, KafkaProducer, errors
 import pymongo
 import yaml
 import time
-import json
-from pyspark.sql import SparkSession
-from pyspark.sql.types import *
 import os
-import logging
 
 #CLASSESS----------------------------
 from serializers import serializer, deserializer
 from preprocess import pre_proc
-from magic_formula import aqi_formula
+
 
 #MAIN--------------------------------
 if __name__ == "__main__":
@@ -46,12 +42,6 @@ if __name__ == "__main__":
       print("\tRetring in 5 seconds...")
       time.sleep(5)
   print(f"\tConnected to {BROKER_ADD_LIST[0]}:{BROKER_PORT_LIST[0]}")
-
-  spark = SparkSession.builder.master("local").appName("MongoDBSparkConnector").getOrCreate()
-  sc = spark.sparkContext.setLogLevel("WARN")
-  logger = logging.getLogger('py4j')
-  logger.setLevel(logging.ERROR)
-  print("\tSpark on.")
 
   consumer.subscribe(topics=TOPIC_CONSUMER)
   print(f'\tWaiting for message on: {TOPIC_CONSUMER}...')
@@ -90,30 +80,14 @@ if __name__ == "__main__":
     pp_weather, pp_traffic, pp_air = pre_proc(db_api, db_pp, request_time)
     print(f"\tData recovered from: {CONNECTION_STRING}")
 
-    ## CORE COMPUTATION (no Spark)
+    ## CORE COMPUTATION
     betas={'traffic': 1.0, 'prec': -0.1, 'wind': -0.5}
     predictions = [pp_air["forecasts"][0]["aqi"]]
     exp_traffic = []
     for i in range(97):
       exp_traffic.append(pp_traffic["forecasts"][i]["actual_traffic"])
       predictions.append(predictions[i] + pp_traffic["forecasts"][i]["actual_traffic"] * betas['traffic'] + (pp_weather["forecasts"][i]["precipitazioni"] * pp_weather["forecasts"][i]["prob_prec"]) * betas['prec'] + pp_weather["wind"] * betas['wind'])
-
-    ## CORE COMPUTATIONS (with Spark)
-    rdd_weather = spark.sparkContext.parallelize(pp_weather["forecasts"])
-    rdd_traffic = spark.sparkContext.parallelize(pp_traffic["forecasts"])
-    rdd_air = spark.sparkContext.parallelize([pp_air])
-
-    # join on datetime
-    rdd1_formatted = rdd_weather.map(lambda x: (x[0], x))    
-    rdd2_formatted = rdd_traffic.map(lambda x: (x[0], x))   
     
-    rdd_joined = rdd1_formatted.join(rdd2_formatted)
-
-    output_rdd = rdd_joined.map(lambda data_point: aqi_formula(data_point[0][2],   # traffic
-                                                           data_point[1][1],       # prec
-                                                           data_point[1][2],       # prob_prec
-                                                           data_point[1][3]))      # wind
-
     #predictions = output_rdd.collect() #COLLECT does not work
     print(f"Predictions: {predictions}")
 
