@@ -75,6 +75,12 @@ python3 UI/app.py
 
 Connecting to the address shown on the console (default is localhost:5000) you will be able to access the user interface and interact with our project.
 
+Home page of the UI:
+![UI_1](https://github.com/SoloValue/BDT_project/assets/119301751/cd6a2cf7-1903-4bec-9077-9718872c9d10)
+
+UI with AQ predictions:
+![UI_2](https://github.com/SoloValue/BDT_project/assets/119301751/2ccc0960-7dfb-47b0-9b4c-6f8a5e6faf22)
+
 ---
 
 ### To Be Implemented Yet
