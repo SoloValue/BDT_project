@@ -48,7 +48,7 @@ def rt_air_request(lat, long_, time):
 
     """ retrieves hourly AQI for current hour & past 72hrs """
 
-    url = f"https://api.weatherbit.io/v2.0/history/airquality?lat={lat}&lon={long_}&key=fd7a60de53d94247a0a16cfdec16d636"
+    url = f"https://api.weatherbit.io/v2.0/history/airquality?lat={lat}&lon={long_}&key=10600dc1303b4b37b44723da1aa19892"
 
     payload = {}
     headers = {}
