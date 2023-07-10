@@ -87,7 +87,7 @@ def data(id_location):
         
 
         table += "<tr>"
-        table += f"<td>{(request_time.hour+i)%24}.00 {request_time.day+((request_time.hour+i)//24)}/{request_time.month}/{request_time.year}</td>"
+        table += f"<td>{(request_time.hour+i+2)%24}.00 {request_time.day+((request_time.hour+i+2)//24)}/{request_time.month}/{request_time.year}</td>"
         table += f"<td style='background-color: {color_pred} ;'>{int(pred)}</td>"
         table += f"<td>{exp_traffic[i]}</td>"
         table += "</tr>"
